@@ -2,7 +2,7 @@
   "manifest_version": "0.2",
   "name": "teachable",
   "display_name": "Teachable MCP Server & CLI",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Shared Teachable CLI/local MCP:26 default tasks,123 with explicit beta opt-in.",
   "long_description": "21 stable v1 and97 opt-in beta v2 Admin operations plus5 local workflows. Named profiles pin API versions. Effects require explicit per-call approval. Production dependencies are bundled; school API outcomes and actual desktop GUI installation are separate validation.",
   "author": {

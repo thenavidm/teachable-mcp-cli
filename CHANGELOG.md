@@ -1,5 +1,11 @@
 # Changelog
 
+
+
+## 2.0.1, 2026-10-04
+
+- **`npx -y @thenavidm/teachable-mcp-cli` always starts the MCP server.** npx starts whichever binary the npm registry lists first when they share one file, and the registry does not keep the published order, so an MCP client set up with this README's install line could get `teachable-cli` and its command list instead of a server. A third binary named after the package now always starts the server, and npx picks it by name.
+
 ## 2.0.0 — 2026-10-04
 
 - Fresh public AGPL-3.0 source; private legacy history and account data excluded.
