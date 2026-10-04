@@ -1,0 +1,31 @@
+{
+  "checked": "2026-10-04",
+  "source": "Teachable official Admin API metadata MCP endpoint snapshots",
+  "sanitizedSnapshotSha256": "121430dc7899c353f07c0a2d4bc68636869c66cfd414ccc74d2ce57c604839da",
+  "sources": [
+    {
+      "version": "1",
+      "sha256": "b344f2cebb4f907aff8f8a5a9a74ac2205b18ba896f27f311eb64a1bce7eed90",
+      "url": "Official credential-free documentation MCP get-endpoint responses",
+      "count": 21
+    },
+    {
+      "version": "2",
+      "sha256": "b83b485b8fd4bc5118ac62e1b784e2a36b8b0da7417eb09b879ac9826cc4f50a",
+      "url": "Official credential-free documentation MCP get-endpoint responses",
+      "count": 97
+    }
+  ],
+  "nativeOperationCount": 118,
+  "providerAccountCalls": 0,
+  "localSchemaPolicy": "Native body properties are locally closed; undocumented fields rejected. No example values included.",
+  "http204Policy": "HTTP204 is a native empty acknowledgement, including v1 generated contracts that attach an empty-object schema.",
+  "pathParameterPolicy": "Path-item parameters merged with operation parameters; coupon_id on all three coupon-by-ID routes verified against published reference.",
+  "semanticChecks": [
+    "Explicit beta user marketing decision and role-specific revenue fractions",
+    "Coupon scope pairing/exclusivity and duration fields; product-scoped new-payments fields",
+    "Coupon paired product filters and native90day date range",
+    "Private password input and signed credential output",
+    "Exact HTTP204 acknowledgement behavior"
+  ]
+}

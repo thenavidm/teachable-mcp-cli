@@ -1,0 +1,2386 @@
+[
+  {
+    "tool": "list_enrollments",
+    "version": "1",
+    "args": {
+      "course_id": 1
+    },
+    "status": 200,
+    "response": {
+      "enrollments": [],
+      "meta": {
+        "total": 1,
+        "page": 1,
+        "from": 1,
+        "to": 1,
+        "per_page": 1,
+        "number_of_pages": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/courses/{course_id}/enrollments"
+  },
+  {
+    "tool": "mark_lecture_complete",
+    "version": "1",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "payload": {
+        "user_id": 1
+      }
+    },
+    "status": 204,
+    "response": null,
+    "method": "POST",
+    "path": "/v1/courses/{course_id}/lectures/{lecture_id}/mark_complete"
+  },
+  {
+    "tool": "list_quiz_responses",
+    "version": "1",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "quiz_id": 1
+    },
+    "status": 200,
+    "response": {
+      "course_id": 1,
+      "course_name": "example",
+      "lecture_id": 1,
+      "lecture_name": "example",
+      "graded": false,
+      "responses": []
+    },
+    "method": "GET",
+    "path": "/v1/courses/{course_id}/lectures/{lecture_id}/quizzes/{quiz_id}/responses"
+  },
+  {
+    "tool": "get_quiz",
+    "version": "1",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "quiz_id": 1
+    },
+    "status": 200,
+    "response": {
+      "id": 1,
+      "name": "example",
+      "kind": "quiz",
+      "url": "example",
+      "text": "example",
+      "position": 1,
+      "quiz": {
+        "id": 1,
+        "type": "Quiz",
+        "questions": []
+      }
+    },
+    "method": "GET",
+    "path": "/v1/courses/{course_id}/lectures/{lecture_id}/quizzes/{quiz_id}"
+  },
+  {
+    "tool": "list_quizzes",
+    "version": "1",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1
+    },
+    "status": 200,
+    "response": {
+      "quiz_ids": []
+    },
+    "method": "GET",
+    "path": "/v1/courses/{course_id}/lectures/{lecture_id}/quizzes"
+  },
+  {
+    "tool": "get_video",
+    "version": "1",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "video_id": 1
+    },
+    "status": 200,
+    "response": {
+      "video": {
+        "id": 1,
+        "video_asset": {
+          "url": "example",
+          "content_type": "example"
+        },
+        "status": "READY",
+        "url_thumbnail": "example",
+        "media_type": "example",
+        "media_duration": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/courses/{course_id}/lectures/{lecture_id}/videos/{video_id}"
+  },
+  {
+    "tool": "get_lecture",
+    "version": "1",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1
+    },
+    "status": 200,
+    "response": {
+      "lecture": {
+        "id": 1,
+        "name": "example",
+        "is_published": false,
+        "position": 1,
+        "lecture_section_id": 1,
+        "attachments": []
+      }
+    },
+    "method": "GET",
+    "path": "/v1/courses/{course_id}/lectures/{lecture_id}"
+  },
+  {
+    "tool": "get_course_progress",
+    "version": "1",
+    "args": {
+      "course_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "course_progress": {
+        "id": 1,
+        "enrolled_at": "2026-10-04T00:00:00Z",
+        "lecture_sections": [],
+        "percent_complete": 1
+      },
+      "meta": {
+        "total": 1,
+        "page": 1,
+        "from": 1,
+        "to": 1,
+        "per_page": 1,
+        "number_of_pages": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/courses/{course_id}/progress"
+  },
+  {
+    "tool": "get_course",
+    "version": "1",
+    "args": {
+      "course_id": 1
+    },
+    "status": 200,
+    "response": {
+      "course": {
+        "lecture_sections": [],
+        "author_bio": {
+          "profile_image_url": "example",
+          "bio": "example",
+          "name": "example",
+          "user_id": 1
+        },
+        "id": 1,
+        "name": "example",
+        "heading": "example",
+        "description": "example",
+        "is_published": false,
+        "image_url": "example"
+      }
+    },
+    "method": "GET",
+    "path": "/v1/courses/{course_id}"
+  },
+  {
+    "tool": "list_courses",
+    "version": "1",
+    "args": {},
+    "status": 200,
+    "response": {
+      "courses": [],
+      "meta": {
+        "total": 1,
+        "page": 1,
+        "from": 1,
+        "to": 1,
+        "per_page": 1,
+        "number_of_pages": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/courses"
+  },
+  {
+    "tool": "create_enrollment",
+    "version": "1",
+    "args": {
+      "payload": {
+        "user_id": 1,
+        "course_id": 1
+      }
+    },
+    "status": 204,
+    "response": null,
+    "method": "POST",
+    "path": "/v1/enroll"
+  },
+  {
+    "tool": "get_pricing_plan",
+    "version": "1",
+    "args": {
+      "pricing_plan_id": 1
+    },
+    "status": 200,
+    "response": {
+      "pricing_plan": {
+        "frequency": {
+          "type": "example",
+          "billing_interval": "example",
+          "billing_interval_count": 1,
+          "access_limit_date": "2026-10-04T00:00:00Z",
+          "access_limit_interval": "example",
+          "access_limit_duration": 1
+        },
+        "description": "example",
+        "id": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z",
+        "name": "example",
+        "price": 1,
+        "currency": "example",
+        "course_id": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/pricing_plans/{pricing_plan_id}"
+  },
+  {
+    "tool": "list_pricing_plans",
+    "version": "1",
+    "args": {},
+    "status": 200,
+    "response": {
+      "pricing_plans": [],
+      "meta": {
+        "total": 1,
+        "page": 1,
+        "from": 1,
+        "to": 1,
+        "per_page": 1,
+        "number_of_pages": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/pricing_plans"
+  },
+  {
+    "tool": "list_transactions",
+    "version": "1",
+    "args": {},
+    "status": 200,
+    "response": {
+      "transactions": [],
+      "meta": {
+        "total": 1,
+        "page": 1,
+        "from": 1,
+        "to": 1,
+        "per_page": 1,
+        "number_of_pages": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/transactions"
+  },
+  {
+    "tool": "unenroll_user",
+    "version": "1",
+    "args": {
+      "payload": {
+        "user_id": 1,
+        "course_id": 1
+      }
+    },
+    "status": 204,
+    "response": null,
+    "method": "POST",
+    "path": "/v1/unenroll"
+  },
+  {
+    "tool": "get_user",
+    "version": "1",
+    "args": {
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "name": "example",
+      "email": "example",
+      "role": "example",
+      "last_sign_in_ip": "example",
+      "id": 1,
+      "courses": [],
+      "tags": []
+    },
+    "method": "GET",
+    "path": "/v1/users/{user_id}"
+  },
+  {
+    "tool": "update_user",
+    "version": "1",
+    "args": {
+      "user_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "name": "example",
+      "email": "example",
+      "role": "example",
+      "last_sign_in_ip": "example",
+      "id": 1,
+      "courses": [],
+      "tags": []
+    },
+    "method": "PATCH",
+    "path": "/v1/users/{user_id}"
+  },
+  {
+    "tool": "list_users",
+    "version": "1",
+    "args": {},
+    "status": 200,
+    "response": {
+      "users": [],
+      "meta": {
+        "total": 1,
+        "page": 1,
+        "from": 1,
+        "to": 1,
+        "per_page": 1,
+        "number_of_pages": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/users"
+  },
+  {
+    "tool": "create_user",
+    "version": "1",
+    "args": {
+      "payload": {
+        "email": "example"
+      }
+    },
+    "status": 201,
+    "response": {
+      "name": "example",
+      "email": "example",
+      "role": "example",
+      "last_sign_in_ip": "example",
+      "id": 1,
+      "courses": [],
+      "tags": []
+    },
+    "method": "POST",
+    "path": "/v1/users"
+  },
+  {
+    "tool": "get_webhook_events",
+    "version": "1",
+    "args": {
+      "webhook_id": 1
+    },
+    "status": 200,
+    "response": {
+      "events": [],
+      "meta": {
+        "total": 1,
+        "page": 1,
+        "from": 1,
+        "to": 1,
+        "per_page": 1,
+        "number_of_pages": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v1/webhooks/{webhook_id}/events"
+  },
+  {
+    "tool": "list_webhooks",
+    "version": "1",
+    "args": {},
+    "status": 200,
+    "response": {
+      "webhooks": []
+    },
+    "method": "GET",
+    "path": "/v1/webhooks"
+  },
+  {
+    "tool": "v2_get_school_customizations",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "school_id": 1,
+        "is_customized": false,
+        "show_login": false,
+        "show_signup": false,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/customizations"
+  },
+  {
+    "tool": "v2_delete_pricing_plan",
+    "version": "2",
+    "args": {
+      "product_type": "example",
+      "product_id": 1,
+      "plan_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "price": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "DELETE",
+    "path": "/v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}"
+  },
+  {
+    "tool": "v2_get_pricing_plan",
+    "version": "2",
+    "args": {
+      "product_type": "example",
+      "product_id": 1,
+      "plan_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "price": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}"
+  },
+  {
+    "tool": "v2_update_pricing_plan",
+    "version": "2",
+    "args": {
+      "product_type": "example",
+      "product_id": 1,
+      "plan_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "price": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}"
+  },
+  {
+    "tool": "v2_list_pricing_plans_for_product",
+    "version": "2",
+    "args": {
+      "product_type": "example",
+      "product_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/{product_type}/{product_id}/pricing-plans"
+  },
+  {
+    "tool": "v2_create_pricing_plan_for_product",
+    "version": "2",
+    "args": {
+      "product_type": "example",
+      "product_id": 1,
+      "payload": {
+        "name": "example",
+        "currency": "example",
+        "price": 1
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "price": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/{product_type}/{product_id}/pricing-plans"
+  },
+  {
+    "tool": "v2_delete_coupon",
+    "version": "2",
+    "args": {
+      "coupon_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/coupons/{coupon_id}"
+  },
+  {
+    "tool": "v2_get_coupon",
+    "version": "2",
+    "args": {
+      "coupon_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "discount_percent": 1,
+        "discount_amount": 1,
+        "discount_currency": "example",
+        "discount_in_months": 1,
+        "name": "example",
+        "number_available": 1,
+        "number_of_uses": 1,
+        "code": "example",
+        "expiration_date": "2026-10-04T00:00:00Z",
+        "formatted_discount": "example",
+        "formatted_price": "example",
+        "currency": "example",
+        "scope_type": "example",
+        "duration_kind": "example",
+        "cap_visible": false,
+        "display_priority": "example",
+        "friendly_url": "example",
+        "product": {
+          "id": 1,
+          "name": "example",
+          "is_recurring": false,
+          "formatted_price": "example",
+          "is_published": false
+        }
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/coupons/{coupon_id}"
+  },
+  {
+    "tool": "v2_update_coupon",
+    "version": "2",
+    "args": {
+      "coupon_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "discount_percent": 1,
+        "discount_amount": 1,
+        "discount_currency": "example",
+        "discount_in_months": 1,
+        "name": "example",
+        "number_available": 1,
+        "number_of_uses": 1,
+        "code": "example",
+        "expiration_date": "2026-10-04T00:00:00Z",
+        "formatted_discount": "example",
+        "formatted_price": "example",
+        "currency": "example",
+        "scope_type": "example",
+        "duration_kind": "example",
+        "cap_visible": false,
+        "display_priority": "example",
+        "friendly_url": "example",
+        "product": {
+          "id": 1,
+          "name": "example",
+          "is_recurring": false,
+          "formatted_price": "example",
+          "is_published": false
+        }
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/coupons/{coupon_id}"
+  },
+  {
+    "tool": "v2_list_coupons",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/coupons"
+  },
+  {
+    "tool": "v2_create_coupon",
+    "version": "2",
+    "args": {
+      "payload": {
+        "code": "example",
+        "name": "example",
+        "duration_kind": "forever",
+        "scope_type": "all_products"
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "discount_percent": 1,
+        "discount_amount": 1,
+        "discount_currency": "example",
+        "discount_in_months": 1,
+        "name": "example",
+        "number_available": 1,
+        "number_of_uses": 1,
+        "code": "example",
+        "expiration_date": "2026-10-04T00:00:00Z",
+        "formatted_discount": "example",
+        "formatted_price": "example",
+        "currency": "example",
+        "scope_type": "example",
+        "duration_kind": "example",
+        "cap_visible": false,
+        "display_priority": "example",
+        "friendly_url": "example",
+        "product": {
+          "id": 1,
+          "name": "example",
+          "is_recurring": false,
+          "formatted_price": "example",
+          "is_published": false
+        }
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/coupons"
+  },
+  {
+    "tool": "v2_list_comments_for_course",
+    "version": "2",
+    "args": {
+      "course_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/comments"
+  },
+  {
+    "tool": "v2_get_compliance_settings_for_course",
+    "version": "2",
+    "args": {
+      "course_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "requirements": {},
+        "certificate_settings": {}
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/compliance"
+  },
+  {
+    "tool": "v2_update_compliance_settings_for_course",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "payload": {}
+    },
+    "status": 204,
+    "response": null,
+    "method": "PATCH",
+    "path": "/v2/products/courses/{course_id}/compliance"
+  },
+  {
+    "tool": "v2_unenroll_user_from_course",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "user_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/courses/{course_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_get_user_s_enrollments_for_course",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_update_course_enrollment",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "active",
+        "enrolled_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/courses/{course_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_enroll_user_in_course",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "active",
+        "enrolled_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PUT",
+    "path": "/v2/products/courses/{course_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_list_enrollments_for_course",
+    "version": "2",
+    "args": {
+      "course_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/enrollments"
+  },
+  {
+    "tool": "v2_delete_content_attachment_from_lesson_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "attachment_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/attachments/{attachment_id}"
+  },
+  {
+    "tool": "v2_get_content_attachment_for_lesson_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "attachment_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "kind": "example",
+        "position": 1,
+        "is_published": false,
+        "embeddable": false,
+        "downloadable": false,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/attachments/{attachment_id}"
+  },
+  {
+    "tool": "v2_update_content_attachment_for_lesson_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "attachment_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "kind": "example",
+        "position": 1,
+        "is_published": false,
+        "embeddable": false,
+        "downloadable": false,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/attachments/{attachment_id}"
+  },
+  {
+    "tool": "v2_list_content_attachments_for_lesson_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/attachments"
+  },
+  {
+    "tool": "v2_create_content_attachment_for_lesson_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "payload": {}
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "kind": "example",
+        "position": 1,
+        "is_published": false,
+        "embeddable": false,
+        "downloadable": false,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/attachments"
+  },
+  {
+    "tool": "v2_reorder_content_attachments_in_lesson_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "payload": {
+        "data": [
+          {
+            "id": 1,
+            "position": 1
+          }
+        ]
+      }
+    },
+    "status": 200,
+    "response": {
+      "data": []
+    },
+    "method": "PUT",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/attachments"
+  },
+  {
+    "tool": "v2_delete_lecture_comment",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "comment_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/comments/{comment_id}"
+  },
+  {
+    "tool": "v2_update_comment_moderation_status",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "comment_id": 1,
+      "payload": {
+        "status": "approved"
+      }
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "lecture": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "awaiting_review",
+        "body": "example",
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "author_name": "example"
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/comments/{comment_id}"
+  },
+  {
+    "tool": "v2_list_comments_for_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/comments"
+  },
+  {
+    "tool": "v2_create_comment_on_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "payload": {
+        "body": "example"
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "lecture": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "awaiting_review",
+        "body": "example",
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "author_name": "example"
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/comments"
+  },
+  {
+    "tool": "v2_list_responses_for_lecture_quiz",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "quiz_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "course": {
+          "id": 1,
+          "name": "example",
+          "href": "example"
+        },
+        "lecture": {
+          "id": 1,
+          "name": "example",
+          "href": "example"
+        },
+        "quiz": {
+          "id": 1,
+          "graded": false,
+          "instant_feedback": false
+        },
+        "responses": []
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes/{quiz_id}/responses"
+  },
+  {
+    "tool": "v2_delete_lecture_quiz",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "quiz_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes/{quiz_id}"
+  },
+  {
+    "tool": "v2_get_lecture_quiz",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "quiz_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "graded": false,
+        "instant_feedback": false,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes/{quiz_id}"
+  },
+  {
+    "tool": "v2_list_quizzes_for_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes"
+  },
+  {
+    "tool": "v2_mark_lecture_as_not_completed_for_user",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "user_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/users/{user_id}/completion"
+  },
+  {
+    "tool": "v2_get_lecture_completion_status_for_user",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "completed": false,
+        "completed_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/users/{user_id}/completion"
+  },
+  {
+    "tool": "v2_mark_lecture_as_completed_for_user",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "completed": false,
+        "completed_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PUT",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/users/{user_id}/completion"
+  },
+  {
+    "tool": "v2_get_video_for_lecture",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "lecture_id": 1,
+      "video_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}/videos/{video_id}"
+  },
+  {
+    "tool": "v2_delete_lecture",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "lecture_id": "example"
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}"
+  },
+  {
+    "tool": "v2_get_lecture",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "lecture_id": "example"
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "position": 1,
+        "is_published": false,
+        "free_preview": false,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}"
+  },
+  {
+    "tool": "v2_update_lecture",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "lecture_id": "example",
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "position": 1,
+        "is_published": false,
+        "free_preview": false,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/courses/{course_id}/lectures/{lecture_id}"
+  },
+  {
+    "tool": "v2_list_lectures_for_course",
+    "version": "2",
+    "args": {
+      "course_id": "example"
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/lectures"
+  },
+  {
+    "tool": "v2_create_lecture_in_section",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "section_id": "example",
+      "payload": {
+        "name": "example"
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "position": 1,
+        "is_published": false,
+        "free_preview": false,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/courses/{course_id}/sections/{section_id}/lectures"
+  },
+  {
+    "tool": "v2_reorder_lectures_in_section",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "section_id": "example",
+      "payload": {
+        "data": [
+          {
+            "id": 1,
+            "position": 1
+          }
+        ]
+      }
+    },
+    "status": 200,
+    "response": {
+      "data": []
+    },
+    "method": "PUT",
+    "path": "/v2/products/courses/{course_id}/sections/{section_id}/lectures"
+  },
+  {
+    "tool": "v2_get_course_section",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "section_id": "example"
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "position": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/sections/{section_id}"
+  },
+  {
+    "tool": "v2_update_course_section",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "section_id": "example",
+      "payload": {
+        "name": "example"
+      }
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "position": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/courses/{course_id}/sections/{section_id}"
+  },
+  {
+    "tool": "v2_replace_course_section",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "section_id": "example",
+      "payload": {
+        "name": "example"
+      }
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "position": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PUT",
+    "path": "/v2/products/courses/{course_id}/sections/{section_id}"
+  },
+  {
+    "tool": "v2_list_sections_for_course",
+    "version": "2",
+    "args": {
+      "course_id": "example"
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/sections"
+  },
+  {
+    "tool": "v2_create_section_in_course",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "payload": {
+        "name": "example"
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "position": 1,
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/courses/{course_id}/sections"
+  },
+  {
+    "tool": "v2_reorder_sections_in_course",
+    "version": "2",
+    "args": {
+      "course_id": "example",
+      "payload": {
+        "data": [
+          {
+            "id": 1,
+            "position": 1
+          }
+        ]
+      }
+    },
+    "status": 200,
+    "response": {
+      "data": []
+    },
+    "method": "PUT",
+    "path": "/v2/products/courses/{course_id}/sections"
+  },
+  {
+    "tool": "v2_get_course_progress_for_user",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "certificate": {
+          "issued_at": "2026-10-04T00:00:00Z",
+          "page_id": 1,
+          "serial_number": "example"
+        },
+        "percent_complete": 1,
+        "sections": []
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}/users/{user_id}/progress"
+  },
+  {
+    "tool": "v2_get_course",
+    "version": "2",
+    "args": {
+      "course_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false,
+        "is_listed": false
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses/{course_id}"
+  },
+  {
+    "tool": "v2_update_course",
+    "version": "2",
+    "args": {
+      "course_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false,
+        "is_listed": false
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/courses/{course_id}"
+  },
+  {
+    "tool": "v2_list_courses",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/courses"
+  },
+  {
+    "tool": "v2_create_course",
+    "version": "2",
+    "args": {
+      "payload": {
+        "name": "example",
+        "author_bio_id": 1
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false,
+        "is_listed": false
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/courses"
+  },
+  {
+    "tool": "v2_delete_attachment_from_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1,
+      "attachment_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/digital-downloads/{digital_download_id}/attachments/{attachment_id}"
+  },
+  {
+    "tool": "v2_get_attachment_for_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1,
+      "attachment_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "kind": "example",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z",
+        "url": "example"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/digital-downloads/{digital_download_id}/attachments/{attachment_id}"
+  },
+  {
+    "tool": "v2_list_attachments_for_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/digital-downloads/{digital_download_id}/attachments"
+  },
+  {
+    "tool": "v2_create_attachment_for_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1,
+      "payload": {
+        "kind": "download"
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "kind": "example",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z",
+        "url": "example"
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/digital-downloads/{digital_download_id}/attachments"
+  },
+  {
+    "tool": "v2_unenroll_user_from_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1,
+      "user_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/digital-downloads/{digital_download_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_get_enrollment_for_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "active",
+        "enrolled_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/digital-downloads/{digital_download_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_enroll_user_in_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "active",
+        "enrolled_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PUT",
+    "path": "/v2/products/digital-downloads/{digital_download_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_list_enrollments_for_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/digital-downloads/{digital_download_id}/enrollments"
+  },
+  {
+    "tool": "v2_delete_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/digital-downloads/{digital_download_id}"
+  },
+  {
+    "tool": "v2_get_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/digital-downloads/{digital_download_id}"
+  },
+  {
+    "tool": "v2_update_digital_download",
+    "version": "2",
+    "args": {
+      "digital_download_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/digital-downloads/{digital_download_id}"
+  },
+  {
+    "tool": "v2_list_digital_downloads",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/digital-downloads"
+  },
+  {
+    "tool": "v2_create_digital_download",
+    "version": "2",
+    "args": {
+      "payload": {
+        "name": "example",
+        "author_bio_id": 1
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/digital-downloads"
+  },
+  {
+    "tool": "v2_unenroll_user_from_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1,
+      "user_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/product-collections/{product_collection_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_get_enrollment_for_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "active",
+        "enrolled_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/product-collections/{product_collection_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_update_product_collection_enrollment",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "active",
+        "enrolled_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/product-collections/{product_collection_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_enroll_user_in_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1,
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "status": "active",
+        "enrolled_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PUT",
+    "path": "/v2/products/product-collections/{product_collection_id}/enrollments/{user_id}"
+  },
+  {
+    "tool": "v2_list_enrollments_for_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/product-collections/{product_collection_id}/enrollments"
+  },
+  {
+    "tool": "v2_remove_product_from_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1,
+      "product_type": "example",
+      "product_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/product-collections/{product_collection_id}/products/{product_type}/{product_id}"
+  },
+  {
+    "tool": "v2_list_products_in_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/product-collections/{product_collection_id}/products"
+  },
+  {
+    "tool": "v2_add_product_to_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": []
+    },
+    "method": "POST",
+    "path": "/v2/products/product-collections/{product_collection_id}/products"
+  },
+  {
+    "tool": "v2_delete_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/products/product-collections/{product_collection_id}"
+  },
+  {
+    "tool": "v2_get_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/product-collections/{product_collection_id}"
+  },
+  {
+    "tool": "v2_update_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/products/product-collections/{product_collection_id}"
+  },
+  {
+    "tool": "v2_replace_product_collection",
+    "version": "2",
+    "args": {
+      "product_collection_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false
+      }
+    },
+    "method": "PUT",
+    "path": "/v2/products/product-collections/{product_collection_id}"
+  },
+  {
+    "tool": "v2_list_product_collections",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products/product-collections"
+  },
+  {
+    "tool": "v2_create_product_collection",
+    "version": "2",
+    "args": {
+      "payload": {
+        "name": "example"
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "name": "example",
+        "is_published": false
+      }
+    },
+    "method": "POST",
+    "path": "/v2/products/product-collections"
+  },
+  {
+    "tool": "v2_list_products",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/products"
+  },
+  {
+    "tool": "v2_get_purchase",
+    "version": "2",
+    "args": {
+      "purchase_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "pricing": {
+          "id": 1,
+          "href": "example"
+        },
+        "product": {
+          "id": 1,
+          "type": "example",
+          "href": "example"
+        },
+        "coupon": {
+          "id": 1,
+          "href": "example"
+        },
+        "payment_method": "example",
+        "currency": "example",
+        "is_recurring": false,
+        "billing_interval": "example",
+        "billing_interval_count": 1,
+        "is_active": false,
+        "purchased_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z",
+        "final_price": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/purchases/{purchase_id}"
+  },
+  {
+    "tool": "v2_list_purchases",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/purchases"
+  },
+  {
+    "tool": "v2_get_transaction",
+    "version": "2",
+    "args": {
+      "transaction_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "user": {
+          "id": 1,
+          "href": "example"
+        },
+        "created_at": "2026-10-04T00:00:00Z",
+        "currency": "example",
+        "is_fully_refunded": false,
+        "payment_gateway": "example"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/transactions/{transaction_id}"
+  },
+  {
+    "tool": "v2_list_transactions",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/transactions"
+  },
+  {
+    "tool": "v2_create_pre_signed_upload_credentials",
+    "version": "2",
+    "args": {
+      "payload": {
+        "type": "course",
+        "id": 1,
+        "purpose": "thumbnail",
+        "extension": "pdf"
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "upload_url": "https://cdn.example.invalid/file",
+        "upload_method": "POST",
+        "upload_headers": {},
+        "url": "https://cdn.example.invalid/file",
+        "expires": "2026-10-04T00:00:00Z",
+        "upload_id": "00000000-0000-4000-8000-000000000000"
+      }
+    },
+    "method": "POST",
+    "path": "/v2/uploads"
+  },
+  {
+    "tool": "v2_list_purchases_for_user",
+    "version": "2",
+    "args": {
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/users/{user_id}/purchases"
+  },
+  {
+    "tool": "v2_list_quiz_responses_for_user",
+    "version": "2",
+    "args": {
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/users/{user_id}/quiz-responses"
+  },
+  {
+    "tool": "v2_revoke_user_session",
+    "version": "2",
+    "args": {
+      "user_id": 1,
+      "session_id": "example"
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/users/{user_id}/sessions/{session_id}"
+  },
+  {
+    "tool": "v2_revoke_user_sessions",
+    "version": "2",
+    "args": {
+      "user_id": 1
+    },
+    "status": 204,
+    "response": null,
+    "method": "DELETE",
+    "path": "/v2/users/{user_id}/sessions"
+  },
+  {
+    "tool": "v2_list_user_sessions",
+    "version": "2",
+    "args": {
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/users/{user_id}/sessions"
+  },
+  {
+    "tool": "v2_delete_user",
+    "version": "2",
+    "args": {
+      "user_id": 1
+    },
+    "status": 202,
+    "response": {
+      "message": "example"
+    },
+    "method": "DELETE",
+    "path": "/v2/users/{user_id}"
+  },
+  {
+    "tool": "v2_get_user",
+    "version": "2",
+    "args": {
+      "user_id": 1
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "email": "example",
+        "name": "example",
+        "phone_number": "example",
+        "role": "student",
+        "author_bio_id": 1,
+        "first_enrolled_at": "2026-10-04T00:00:00Z",
+        "last_sign_in_at": "2026-10-04T00:00:00Z",
+        "metrics": {
+          "transactions": {
+            "count": 1,
+            "total_spent": 1
+          },
+          "enrollments": {
+            "count": 1
+          },
+          "quizzes": {
+            "total": 1,
+            "passed": 1
+          }
+        },
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "GET",
+    "path": "/v2/users/{user_id}"
+  },
+  {
+    "tool": "v2_update_user",
+    "version": "2",
+    "args": {
+      "user_id": 1,
+      "payload": {}
+    },
+    "status": 200,
+    "response": {
+      "data": {
+        "id": 1,
+        "email": "example",
+        "name": "example",
+        "phone_number": "example",
+        "role": "student",
+        "author_bio_id": 1,
+        "first_enrolled_at": "2026-10-04T00:00:00Z",
+        "last_sign_in_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "PATCH",
+    "path": "/v2/users/{user_id}"
+  },
+  {
+    "tool": "v2_list_users",
+    "version": "2",
+    "args": {},
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "per_page": 1,
+        "total_pages": 1,
+        "total_count": 1
+      }
+    },
+    "method": "GET",
+    "path": "/v2/users"
+  },
+  {
+    "tool": "v2_create_user",
+    "version": "2",
+    "args": {
+      "payload": {
+        "name": "example",
+        "email": "example",
+        "role": "student",
+        "allow_marketing_emails": false
+      }
+    },
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "email": "example",
+        "name": "example",
+        "phone_number": "example",
+        "role": "student",
+        "author_bio_id": 1,
+        "first_enrolled_at": "2026-10-04T00:00:00Z",
+        "last_sign_in_at": "2026-10-04T00:00:00Z",
+        "created_at": "2026-10-04T00:00:00Z",
+        "updated_at": "2026-10-04T00:00:00Z"
+      }
+    },
+    "method": "POST",
+    "path": "/v2/users"
+  }
+]

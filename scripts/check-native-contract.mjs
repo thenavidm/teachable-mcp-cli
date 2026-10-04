@@ -1,0 +1,6 @@
+import fs from'node:fs';import assert from'node:assert/strict';import{createHash}from'node:crypto';
+const url=new URL('../src/tools/operations.json',import.meta.url),text=fs.readFileSync(url,'utf8').replace(/\r\n/g,'\n'),ops=JSON.parse(text),p=JSON.parse(fs.readFileSync(new URL('../src/tools/provenance.json',import.meta.url),'utf8'));
+assert.equal(createHash('sha256').update(text).digest('hex'),p.sanitizedSnapshotSha256);assert.equal(ops.length,118);assert.equal(new Set(ops.map(o=>o.name)).size,118);assert.equal(ops.filter(o=>o.apiVersion==='1').length,21);assert.equal(ops.filter(o=>o.apiVersion==='2').length,97);
+for(const op of ops){assert(op.path.startsWith('/v'+op.apiVersion+'/'));assert.equal(JSON.stringify([...op.path.matchAll(/\{([^}]+)\}/g)].map(x=>x[1]).sort()),JSON.stringify(op.params.filter(p=>p.location==='path').map(p=>p.name).sort()));assert(!op.params.some(p=>p.location==='header'));assert.equal(op.risk,op.method==='GET'?'read':'destructive');}
+assert.equal(ops.find(o=>o.name==='create_enrollment').path,'/v1/enroll');assert.equal(ops.find(o=>o.name==='list_pricing_plans').path,'/v1/pricing_plans');assert(!ops.some(o=>['create_webhook','delete_webhook','list_lectures'].includes(o.name)));
+console.log(JSON.stringify({nativeOperations:118,checked:p.checked,snapshotSha256:p.sanitizedSnapshotSha256,upstreamRefreshAutomatic:false}));
