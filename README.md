@@ -13,7 +13,7 @@ A Teachable CLI and local MCP for school workflows: stable v1 by default, explic
 
 One install, one implementation on both surfaces. Teachable's official remote MCP already executes account requests and searches docs; this companion adds specific local workflows. It does not implement end-user OAuth.
 
-Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=teachable-mcp-cli&utm_content=readme).
+Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=teachable-mcp-cli&utm_content=readme). Built on [Slipway](https://github.com/thenavidm/slipway), which turns one definition of each tool into the MCP server and the CLI, so validation, approval and redaction are the same on both.
 
 <img src="https://cdn.navid.me/repos/teachable-mcp-cli-retina.gif" alt="Codex illustrating Teachable course reads and a locally reviewed enrollment batch" width="520">
 
@@ -36,7 +36,7 @@ Use it directly or through a shell agent after configuring the intended private 
 codex mcp add teachable -- npx -y @thenavidm/teachable-mcp-cli@latest
 ```
 
-A supported client launches the local stdio server and discovers the same tasks. Forward private settings through the client runtime. [INSTALL.md](INSTALL.md) covers clients, OS paths, desktop and Docker setup.
+A supported client launches the local stdio server and discovers the same tasks. Forward private settings through the client runtime. Where the client can ask, a person approves every effect: Claude Code shows its own prompt for each call, and a client that can show forms asks with an approval form. [INSTALL.md](INSTALL.md) covers clients, OS paths, desktop and Docker setup.
 
 ### Which one
 
@@ -237,15 +237,16 @@ codex mcp add teachable -- npx -y @thenavidm/teachable-mcp-cli@latest
 codex mcp list
 ```
 
-Configure private credentials before the first account read. This is a local stdio MCP, without a public HTTP listener. The desktop release is [teachable-2.0.0.mcpb](https://github.com/thenavidm/teachable-mcp-cli/releases/download/v2.0.0/teachable-2.0.0.mcpb); use the supported host Extensions screen. It bundles production JavaScript dependencies, while the host must supply a compatible Node runtime.
+Configure private credentials before the first account read. This is a local stdio MCP, without a public HTTP listener. `teachable-cli install <client>` writes the entry for Claude Code, Codex, Claude Desktop, Cursor, VS Code or Gemini CLI in that client's own format; add `--dry-run` to see it first. The desktop release is [teachable-3.0.0.mcpb](https://github.com/thenavidm/teachable-mcp-cli/releases/download/v3.0.0/teachable-3.0.0.mcpb); use the supported host Extensions screen. It bundles production JavaScript dependencies, while the host must supply a compatible Node runtime.
 
 ## 4. Output and exit codes
 
-Schemas, validation, handlers and confirmation policy are shared across both binaries. `--agent` selects compact JSON presentation for shell agents; `--select a,b.c` projects output fields. Use `--json` or `--compact` directly when appropriate. `--yes` affects presentation and never grants effect approval. Errors go to stderr.
+Schemas, validation, handlers and confirmation policy are shared across both binaries. `--agent` selects compact JSON presentation for shell agents; `--select a,b.c` projects output fields. Use `--json` or `--compact` directly when appropriate. `--dry-run` checks a command and prints what would run, without running it. `--yes` never grants effect approval. Errors go to stderr as one JSON object with `error`, `code` and, where it helps, `hint`.
 
 | Exit | Meaning |
 | --- | --- |
 | 0 | Successful command |
+| 1 | Unexpected error, worth an issue |
 | 2 | Usage, invalid arguments or refused effect |
 | 3 | Resource not found |
 | 4 | Provider authentication/permission failure |
@@ -274,7 +275,17 @@ CLI suits shell agents, scripts and selected tasks. MCP suits supported apps tha
 
 The beta-enabled list includes both API versions plus five local helpers. Each native call still requires a matching profile version. CLI help/results enter context on demand; MCP schema loading may be deferred by the client. Discovery size alone cannot show task efficiency.
 
-Matched completed Codex task/token measurement remains pending. A fair comparison must use equivalent successful tasks, current client/model/package versions, loading mode and total usage including help, outputs, errors and retries. No schema-character estimate or borrowed benchmark is published as savings.
+Measured 2026-10-04, 2.0.1 against 3.0.0, with tasks that need no school account, so they measure the tools' own cost rather than provider responses:
+
+| What | 2.0.1 | 3.0.0 |
+| --- | --- | --- |
+| Claude Code 2.1.286, every tool loaded (`ENABLE_TOOL_SEARCH=false`) | 12,576 and 12,579 tokens | 12,548 and 12,550 tokens |
+| Claude Code, default tool search | 753 and 757 tokens | 754 and 757 tokens |
+| SKILL.md, read once in Claude Code | 1,232 and 1,227 tokens | 1,258 and 1,259 tokens |
+| Codex 0.159.3 over MCP: preview one enrollment batch, reply with its hash | 77,218 and 77,222 input tokens | 77,266 and 77,274 input tokens |
+| Codex over the CLI, the same task, median of five runs | 166,358 input tokens; a failed command in every run | 147,386 input tokens; no failed commands |
+
+Each Claude Code number is one short prompt with and without the server or the skill, so the difference is exactly what Claude Code sends. Codex ran gpt-6.1-sol with approval policy never and a read-only sandbox, and its numbers are total input tokens from `codex exec --json`. Over MCP, the 48 extra Codex tokens come from the standard `confirm` wording: putting the old wording back removed them. Over the CLI, 2.0.1 rejected the tasks as a JSON array, so the model retried, while 3.0.0 accepted them and `which` found the command. The skill's one-line description is unchanged. No schema-character estimate or borrowed benchmark is published as savings.
 
 ## 6. Tools
 
@@ -310,9 +321,9 @@ Native: `POST /v1/courses/{course_id}/lectures/{lecture_id}/mark_complete`. Vers
 | `lecture_id` | integer (minimum=1, format=int32) | Required | The unique lecture ID. |
 | `user_id` | integer (format=int32) | Optional | The unique ID of the user. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -454,9 +465,9 @@ Native: `POST /v1/enroll`. Version: stable v1. [Current source](https://docs.tea
 | `user_id` | integer (format=int32) | Optional | The unique ID of the user. |
 | `course_id` | integer (format=int32) | Optional | The unique ID of the course. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -527,9 +538,9 @@ Native: `POST /v1/unenroll`. Version: stable v1. [Current source](https://docs.t
 | `user_id` | integer (format=int32) | Optional | The unique ID of the user. |
 | `course_id` | integer (format=int32) | Optional | The unique ID of the course. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -565,9 +576,9 @@ Native: `PATCH /v1/users/{user_id}`. Version: stable v1. [Current source](https:
 | `name` | string | Optional | The name of the user. |
 | `src` | string | Optional | The signup source of the user, which is displayed on the Information tab of the user profile. . |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -606,9 +617,9 @@ Native: `POST /v1/users`. Version: stable v1. [Current source](https://docs.teac
 | `email` | string | Optional | The email address of the new user.. |
 | `src` | string | Optional | The [signup source](https://support.teachable.com/hc/en-us/articles/219571648#TrackSignupSourceshttps://support.teachable.com/hc/en-us/articles/219571648#TrackSignupSources) of the user, Information tab of the user profile. SRC can also be used as a custom value when creating users in your school. For example, if you use any unique identifiers to help manage your users in multiple external systems (such as unique IDs, tags, etc.), you can use the src field to keep this identifier associated with your user in Teachable. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -679,7 +690,7 @@ Native: `DELETE /v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}
 | `product_id` | integer | Required | Product ID |
 | `plan_id` | integer | Required | Pricing plan ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_pricing_plan
 
@@ -729,9 +740,9 @@ Native: `PATCH /v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}`
 | `enrollment_cap_fulfillment_count` | integer nullable | Optional | Native field |
 | `enrollment_cap_visible` | boolean nullable | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -809,9 +820,9 @@ Native: `POST /v2/products/{product_type}/{product_id}/pricing-plans`. Version: 
 | `position` | integer nullable | Optional | Native field |
 | `is_published` | boolean | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -855,7 +866,7 @@ Native: `DELETE /v2/products/coupons/{coupon_id}`. Version: explicit beta v2. [C
 | --- | --- | --- | --- |
 | `coupon_id` | integer | Required | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_coupon
 
@@ -893,9 +904,9 @@ Native: `PATCH /v2/products/coupons/{coupon_id}`. Version: explicit beta v2. [Cu
 | `cap_visible` | boolean | Optional | Native field |
 | `display_priority` | time, uses | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -961,9 +972,9 @@ Native: `POST /v2/products/coupons`. Version: explicit beta v2. [Current source]
 | `cap_visible` | boolean | Optional | Native field |
 | `display_priority` | time, uses | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1046,9 +1057,9 @@ Native: `PATCH /v2/products/courses/{course_id}/compliance`. Version: explicit b
 | `requirements` | object | Optional | Completion requirements. When `video_completion_enforced` or `quiz_pass_required` ends up `true`, `lecture_order_required` must also be `true`, or the request returns 422. The rule is applied to the request body merged over the course's persisted values, so an omitted field is evaluated using its stored value rather than being ignored. |
 | `certificate_settings` | object | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1077,7 +1088,7 @@ Native: `DELETE /v2/products/courses/{course_id}/enrollments/{user_id}`. Version
 | `course_id` | integer | Required | Course ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_user_s_enrollments_for_course
 
@@ -1108,7 +1119,7 @@ Native: `PATCH /v2/products/courses/{course_id}/enrollments/{user_id}`. Version:
 | `course_id` | integer | Required | Course ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_enroll_user_in_course
 
@@ -1123,7 +1134,7 @@ Native: `PUT /v2/products/courses/{course_id}/enrollments/{user_id}`. Version: e
 | `course_id` | integer | Required | Course ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_list_enrollments_for_course
 
@@ -1160,7 +1171,7 @@ Native: `DELETE /v2/products/courses/{course_id}/lectures/{lecture_id}/attachmen
 | `lecture_id` | integer | Required | Lecture ID |
 | `attachment_id` | integer | Required | Attachment ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_content_attachment_for_lesson_lecture
 
@@ -1200,9 +1211,9 @@ Native: `PATCH /v2/products/courses/{course_id}/lectures/{lecture_id}/attachment
 | `code_syntax` | string (maxLength=50) | Optional | Native field |
 | `open_response_question` | object | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1266,9 +1277,9 @@ Native: `POST /v2/products/courses/{course_id}/lectures/{lecture_id}/attachments
 | `img_alt_text` | string (maxLength=255) | Optional | Native field |
 | `file` | object | Optional | Required for file, image, video, audio, pdf_embed kinds. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1306,9 +1317,9 @@ Native: `PUT /v2/products/courses/{course_id}/lectures/{lecture_id}/attachments`
 | `lecture_id` | integer | Required | Lecture ID |
 | `data` | array (minItems=1) | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1332,7 +1343,7 @@ Native: `DELETE /v2/products/courses/{course_id}/lectures/{lecture_id}/comments/
 | `lecture_id` | integer | Required | Lecture ID |
 | `comment_id` | integer | Required | Comment ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_update_comment_moderation_status
 
@@ -1361,9 +1372,9 @@ Native: `PATCH /v2/products/courses/{course_id}/lectures/{lecture_id}/comments/{
 | `comment_id` | integer | Required | Comment ID |
 | `status` | approved, removed, denied | Optional | New moderation status. `approved`: approve the comment. `removed`: soft-delete (kept as thread placeholder). `denied`: permanently hide the comment. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1422,9 +1433,9 @@ Native: `POST /v2/products/courses/{course_id}/lectures/{lecture_id}/comments`. 
 | `body` | string | Optional | Comment text |
 | `parent_id` | integer nullable | Optional | Parent comment ID for replies |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1468,7 +1479,7 @@ Native: `DELETE /v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes/{
 | `lecture_id` | integer | Required | Lecture ID |
 | `quiz_id` | integer | Required | Quiz ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_lecture_quiz
 
@@ -1523,7 +1534,7 @@ Native: `DELETE /v2/products/courses/{course_id}/lectures/{lecture_id}/users/{us
 | `lecture_id` | integer | Required | Lecture ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_lecture_completion_status_for_user
 
@@ -1558,7 +1569,7 @@ Native: `PUT /v2/products/courses/{course_id}/lectures/{lecture_id}/users/{user_
 | `lecture_id` | integer | Required | Lecture ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_video_for_lecture
 
@@ -1589,7 +1600,7 @@ Native: `DELETE /v2/products/courses/{course_id}/lectures/{lecture_id}`. Version
 | `course_id` | string | Required | Course ID |
 | `lecture_id` | string | Required | Lecture ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_lecture
 
@@ -1622,9 +1633,9 @@ Native: `PATCH /v2/products/courses/{course_id}/lectures/{lecture_id}`. Version:
 | `free_preview` | boolean | Optional | Whether the lecture is available as a free preview. Must be a boolean (true/false). |
 | `student_comments_enabled` | boolean | Optional | Whether student comments are enabled for this lecture. Must be a boolean (true/false). |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1674,9 +1685,9 @@ Native: `POST /v2/products/courses/{course_id}/sections/{section_id}/lectures`. 
 | `free_preview` | boolean | Optional | Native field |
 | `student_comments_enabled` | boolean | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1701,9 +1712,9 @@ Native: `PUT /v2/products/courses/{course_id}/sections/{section_id}/lectures`. V
 | `section_id` | string | Required | Section ID |
 | `data` | array (minItems=1) | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1741,9 +1752,9 @@ Native: `PATCH /v2/products/courses/{course_id}/sections/{section_id}`. Version:
 | `section_id` | string | Required | Section ID (must be a positive integer) |
 | `name` | string (maxLength=300) | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1765,9 +1776,9 @@ Native: `PUT /v2/products/courses/{course_id}/sections/{section_id}`. Version: e
 | `section_id` | string | Required | Section ID (must be a positive integer) |
 | `name` | string (maxLength=300) | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1805,9 +1816,9 @@ Native: `POST /v2/products/courses/{course_id}/sections`. Version: explicit beta
 | `course_id` | string | Required | Course ID (must be a positive integer) |
 | `name` | string (maxLength=300) | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1828,9 +1839,9 @@ Native: `PUT /v2/products/courses/{course_id}/sections`. Version: explicit beta 
 | `course_id` | string | Required | Course ID (must be a positive integer) |
 | `data` | array (minItems=1) | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1885,9 +1896,9 @@ Native: `PATCH /v2/products/courses/{course_id}`. Version: explicit beta v2. [Cu
 | `friendly_url` | string (maxLength=100, pattern=^[a-zA-Z0-9\-_]+$) | Optional | URL slug. Allowed characters: letters, numbers, hyphens (-), and underscores (_). Must be unique within the school. |
 | `image_url` | string nullable (maxLength=2048, format=uri) | Optional | Course image URL. Must be a valid HTTP/HTTPS URL. Extension is not restricted (CDN URLs without extensions are accepted). Maximum 2048 characters. Blank or null clears the image. External URLs are referenced directly and are not downloaded or re-hosted by Teachable. Only files uploaded via the POST /v2/uploads endpoint are stored on Teachable's CDN. The caller is responsible for ensuring externally-hosted media remains available at the provided URL. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1941,9 +1952,9 @@ Native: `POST /v2/products/courses`. Version: explicit beta v2. [Current source]
 | `friendly_url` | string (maxLength=100, pattern=^[a-zA-Z0-9\-_]+$) | Optional | URL slug for the course. Allowed characters: letters, numbers, hyphens (-), and underscores (_). If omitted, auto-generated from the course name. Must be unique within the school. |
 | `image_url` | string nullable (maxLength=2048, format=uri) | Optional | Course image URL. Must be a valid HTTP/HTTPS URL. Extension is not restricted (CDN URLs without extensions are accepted). Maximum 2048 characters. Blank or null clears the image. External URLs are referenced directly and are not downloaded or re-hosted by Teachable. Only files uploaded via the POST /v2/uploads endpoint are stored on Teachable's CDN. The caller is responsible for ensuring externally-hosted media remains available at the provided URL. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -1970,7 +1981,7 @@ Native: `DELETE /v2/products/digital-downloads/{digital_download_id}/attachments
 | `digital_download_id` | integer | Required | Digital Download ID |
 | `attachment_id` | integer | Required | Attachment ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_attachment_for_digital_download
 
@@ -2018,9 +2029,9 @@ Native: `POST /v2/products/digital-downloads/{digital_download_id}/attachments`.
 | `kind` | download, redirect | Optional | The type of attachment. All attachments on a digital download must have the same kind. |
 | `button_text` | string nullable | Optional | Required when kind is 'redirect'. The text displayed on the redirect button. Maximum 24 characters. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2045,7 +2056,7 @@ Native: `DELETE /v2/products/digital-downloads/{digital_download_id}/enrollments
 | `digital_download_id` | integer | Required | Digital Download ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_enrollment_for_digital_download
 
@@ -2074,7 +2085,7 @@ Native: `PUT /v2/products/digital-downloads/{digital_download_id}/enrollments/{u
 | `digital_download_id` | integer | Required | Digital Download ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_list_enrollments_for_digital_download
 
@@ -2108,7 +2119,7 @@ Native: `DELETE /v2/products/digital-downloads/{digital_download_id}`. Version: 
 | --- | --- | --- | --- |
 | `digital_download_id` | integer | Required | Digital Download ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_digital_download
 
@@ -2140,9 +2151,9 @@ Native: `PATCH /v2/products/digital-downloads/{digital_download_id}`. Version: e
 | `is_published` | boolean | Optional | Native field |
 | `image_url` | string nullable (format=uri) | Optional | External URLs are referenced directly and are not downloaded or re-hosted by Teachable. Only files uploaded via the POST /v2/uploads endpoint are stored on Teachable's CDN. The caller is responsible for ensuring externally-hosted media remains available at the provided URL. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2193,9 +2204,9 @@ Native: `POST /v2/products/digital-downloads`. Version: explicit beta v2. [Curre
 | `author_bio_id` | integer | Optional | Native field |
 | `image_url` | string nullable (format=uri) | Optional | External URLs are referenced directly and are not downloaded or re-hosted by Teachable. Only files uploaded via the POST /v2/uploads endpoint are stored on Teachable's CDN. The caller is responsible for ensuring externally-hosted media remains available at the provided URL. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2221,7 +2232,7 @@ Native: `DELETE /v2/products/product-collections/{product_collection_id}/enrollm
 | `product_collection_id` | integer | Required | Product Collection ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_enrollment_for_product_collection
 
@@ -2250,7 +2261,7 @@ Native: `PATCH /v2/products/product-collections/{product_collection_id}/enrollme
 | `product_collection_id` | integer | Required | Product Collection ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_enroll_user_in_product_collection
 
@@ -2265,7 +2276,7 @@ Native: `PUT /v2/products/product-collections/{product_collection_id}/enrollment
 | `product_collection_id` | integer | Required | Product Collection ID |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_list_enrollments_for_product_collection
 
@@ -2302,7 +2313,7 @@ Native: `DELETE /v2/products/product-collections/{product_collection_id}/product
 | `product_type` | string | Required | Product Type (course, coaching, digital_download) |
 | `product_id` | integer | Required | Product ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_list_products_in_product_collection
 
@@ -2333,9 +2344,9 @@ Native: `POST /v2/products/product-collections/{product_collection_id}/products`
 | `product_collection_id` | integer | Required | Product Collection ID |
 | `data` | array | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2361,7 +2372,7 @@ Native: `DELETE /v2/products/product-collections/{product_collection_id}`. Versi
 | --- | --- | --- | --- |
 | `product_collection_id` | integer | Required | Product Collection ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_product_collection
 
@@ -2393,9 +2404,9 @@ Native: `PATCH /v2/products/product-collections/{product_collection_id}`. Versio
 | `is_published` | boolean | Optional | Native field |
 | `is_listed` | boolean | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2424,9 +2435,9 @@ Native: `PUT /v2/products/product-collections/{product_collection_id}`. Version:
 | `is_published` | boolean | Optional | Native field |
 | `is_listed` | boolean | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2470,9 +2481,9 @@ Native: `POST /v2/products/product-collections`. Version: explicit beta v2. [Cur
 | `is_published` | boolean | Optional | Native field |
 | `is_listed` | boolean | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2684,9 +2695,9 @@ Native: `POST /v2/uploads`. Version: explicit beta v2. [Current source](https://
 | Argument | Type or constraint | Requirement | Meaning |
 | --- | --- | --- | --- |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | oneOf | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 | `output_file` | string (minLength=1) | Required | Absolute NEW owner-private receipt file; exclusive0600 creation, no overwrite. Upload/public-token URLs never enter ordinary output. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
@@ -2787,7 +2798,7 @@ Native: `DELETE /v2/users/{user_id}/sessions/{session_id}`. Version: explicit be
 | `user_id` | integer | Required | User ID |
 | `session_id` | string | Required | Session ID (UUID) |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_revoke_user_sessions
 
@@ -2801,7 +2812,7 @@ Native: `DELETE /v2/users/{user_id}/sessions`. Version: explicit beta v2. [Curre
 | --- | --- | --- | --- |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_list_user_sessions
 
@@ -2832,7 +2843,7 @@ Native: `DELETE /v2/users/{user_id}`. Version: explicit beta v2. [Current source
 | --- | --- | --- | --- |
 | `user_id` | integer | Required | User ID |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ### v2_get_user
 
@@ -2865,9 +2876,9 @@ Native: `PATCH /v2/users/{user_id}`. Version: explicit beta v2. [Current source]
 | `author_revenue_share` | number nullable | Optional | Native field |
 | `affiliate_revenue_share` | number nullable | Optional | Native field |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2921,9 +2932,9 @@ Native: `POST /v2/users`. Version: explicit beta v2. [Current source](https://do
 | `author_revenue_share` | number nullable | Optional | Required when role is 'author'. Decimal between 0 and 1 (e.g. 0.3 = 30%). Must not be provided for other roles. |
 | `affiliate_revenue_share` | number nullable | Optional | Required when role is 'affiliate'. Decimal between 0 and 1. Must not be provided for other roles. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `payload` | object | Optional | Complete current native JSON body; cannot mix with native body flags or payload_file. |
-| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags. |
+| `payload_file` | string (minLength=1) | Optional | Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags. |
 
 Native JSON fields below must satisfy their required fields and chosen variants. Use flat body flags, payload OR payload_file. Passwords require owner-private payload_file. Inspect the complete machine schema before effects.
 
@@ -2978,7 +2989,7 @@ CLI: `teachable-cli submit-school-batch`. Policy: explicit confirmation.
 | --- | --- | --- | --- |
 | `tasks` | array (minItems=1, maxItems=20) | Required | One to twenty exact ordered native effects. No signed receipts or mutable payload files. Cannot override account/confirm/output settings. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `review_sha256` | string (pattern=^[a-f0-9]{64}$) | Required | Native field |
 
 ### export_resources
@@ -2992,7 +3003,7 @@ CLI: `teachable-cli export-resources`. Policy: explicit confirmation.
 | `operation` | list_courses, list_pricing_plans, list_transactions, list_users, get_webhook_events, v2_list_pricing_plans_for_product, v2_list_coupons, v2_list_comments_for_course, v2_get_user_s_enrollments_for_course, v2_list_enrollments_for_course, v2_list_content_attachments_for_lesson_lecture, v2_list_comments_for_lecture, v2_list_quizzes_for_lecture, v2_list_lectures_for_course, v2_list_sections_for_course, v2_list_courses, v2_list_attachments_for_digital_download, v2_list_enrollments_for_digital_download, v2_list_digital_downloads, v2_list_enrollments_for_product_collection, v2_list_product_collections, v2_list_products, v2_list_purchases, v2_list_transactions, v2_list_purchases_for_user, v2_list_quiz_responses_for_user, v2_list_user_sessions, v2_list_users | Required | Native field |
 | `arguments` | object | Optional | Current native list arguments; cannot override profile/policy/output. |
 | `account` | string | Optional | Exact private school profile label; not a provider identity or authorization proof. |
-| `confirm` | boolean | Optional | Explicit approval for this exact provider effect or local private-file operation. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `start_offset` | integer (minimum=0, maximum=99) | Optional | Native field |
 | `max_pages` | integer (minimum=1, maximum=100) | Optional | Native field |
 | `max_items` | integer (minimum=1, maximum=10000) | Optional | Native field |
@@ -3001,7 +3012,7 @@ CLI: `teachable-cli export-resources`. Policy: explicit confirmation.
 
 ## 7. Writing safely
 
-Every provider or private-output effect requires `confirm:true` in MCP or `--confirm` in CLI. Read-only hides and directly refuses effects, and `TEACHABLE_ALLOW_DESTRUCTIVE=0` refuses them even with approval. Local confirmation does not supply provider authorization, customer permission, marketing consent or financial entitlement.
+Every provider or private-output effect needs approval. In a terminal that is `--confirm`, which `--agent` and `--yes` never add. Over MCP a person approves each one where the client can ask: Claude Code (2.1.246 and later) shows its own prompt for the call, and a client that can show forms asks with an approval form whose one box starts unticked. Each approval is signed, bound to that exact call and works once. A client that can do neither falls back to `confirm: true`, which a model may pass only when the user asked for that exact action. `TEACHABLE_CONFIRM=model` makes `confirm: true` enough everywhere, for a headless agent you trust. Read-only hides and directly refuses effects, and `TEACHABLE_ALLOW_DESTRUCTIVE=0` refuses them even with approval. Local confirmation does not supply provider authorization, customer permission, marketing consent or financial entitlement. `TEACHABLE_AUDIT_LOG` records who approved each call.
 
 Read the intended records and inspect the operation schema before preparing effects. Course publishing, enrollment access, user deletion, session revocation and pricing changes can affect people immediately. Only carry out the action the user asked for. Teachable determines whether a key, role, scope and school plan allow it.
 
@@ -3056,7 +3067,7 @@ Output uses a NEW absolute path, exclusive creation and POSIX 0600 permissions. 
 
 ## 11. How it works
 
-The SDK stdio server and CLI in-memory bridge execute the same tools and guard. Tool schemas derive from reviewed native parameters/body variants; Ajv validates arguments and bodies before fetching. Method/path/version allowlists prevent arbitrary-host key forwarding and silent API fallback. Path-level and operation-level parameters both matter.
+[Slipway](https://github.com/thenavidm/slipway) 0.1.4 turns one list of tools into the stdio MCP server and the CLI, and both send every call through the same path, so validation, the guard, approval and redaction cannot differ. Tool schemas derive from reviewed native parameters/body variants; Ajv validates arguments and bodies before fetching, compiling each schema on its first use. Method/path/version allowlists prevent arbitrary-host key forwarding and silent API fallback. Path-level and operation-level parameters both matter.
 
 Five local helpers provide profile discovery, contract inspection, review/submit batches and bounded metadata exports. No community runtime or private legacy Git history is copied. The provenance file pins the transformed schema and the two original source snapshot hashes.
 
@@ -3071,7 +3082,7 @@ npm run sync:api -- --check
 npm run build:mcpb
 ```
 
-CI covers Node 22/24 on macOS, Windows and Linux plus desktop packaging. These checks establish local behavior and artifacts. School account outcomes, actual GUI installation and completed Codex task/token measurements remain separately tracked. The sync check verifies the pinned snapshot; it never silently regenerates an unreviewed upstream contract.
+CI covers Node 22/24 on macOS, Windows and Linux plus desktop packaging. These checks establish local behavior and artifacts. School account outcomes and actual GUI installation remain separately tracked; the Codex task measurement is in [section 5](#5-which-surface-and-what-each-costs). The sync check verifies the pinned snapshot; it never silently regenerates an unreviewed upstream contract.
 
 ## 12. Your data
 
@@ -3091,11 +3102,11 @@ Teachable's [official remote MCP](https://docs.teachable.com/v2.0/docs/mcp) alre
 | End-user OAuth | Not implemented | Official MCP accepts a separately obtained bearer |
 | Terminal | Dedicated schemas/help over shared handlers | Generic MCP terminal clients also exist |
 | School selection | Exact isolated profile label and API version | Credential/client setup remains the user's responsibility |
-| Approval | Per-call confirmation, direct read-only refusal | Provider permissions and client approvals remain separate |
+| Approval | A person approves each effect where the client can ask; direct read-only refusal | Provider permissions and client approvals remain separate |
 | Repeated effects | Exact local batch review, stop-on-failure receipts | No transaction/state-lock claim |
 | Export | Bounded private native-page export and offset resume | No atomic backup or binary download claim |
 | Beta | Hidden default, explicitly pinned version, no fallback | Provider request-access and new scoped key may be required |
-| Efficiency | No matched completed task benchmark yet | Tool counts are not token savings |
+| Efficiency | One matched Codex task measured, 2.0.1 against 3.0.0; none against alternatives | Tool counts are not token savings |
 
 The pinned [ahmedrowaihi/teachable-mcp-server](https://github.com/ahmedrowaihi/teachable-mcp-server) source at 5d722b2987a8b745d50e2d49f58589ca51a10002 declares 21 v1 operations and one stdio server binary, without task CLI dispatch in the reviewed source. That is not proof no CLI exists elsewhere. Generic [wong2/mcp-cli](https://github.com/wong2/mcp-cli) is a terminal alternative; its reviewed source already supports remote interactive OAuth. See [COMPARISON.md](COMPARISON.md) for evidence and limits.
 
@@ -3103,8 +3114,9 @@ The pinned [ahmedrowaihi/teachable-mcp-server](https://github.com/ahmedrowaihi/t
 
 | Component | Version or evidence |
 | --- | --- |
-| Package and desktop | 2.0.0 |
+| Package and desktop | 3.0.0 |
 | Node runtime | >=22 |
+| Framework | Slipway 0.1.4 |
 | Native contracts | Stable v1 and request-access beta v2, checked 2026-10-04 |
 | Native operations | 21 v1 / 97 v2 |
 | Shared helpers | 5 |
@@ -3112,6 +3124,8 @@ The pinned [ahmedrowaihi/teachable-mcp-server](https://github.com/ahmedrowaihi/t
 | Default discovery | 26 tasks / 19 reads / 7 confirmed effects |
 | Explicit beta discovery | 123 tasks / 64 reads / 59 confirmed effects |
 | Provider, GUI and task-token outcomes | Separate acceptance, never inferred from fixtures |
+
+3.0.0 moves both surfaces onto Slipway. Tool names, arguments, results and exit codes stay the same, and `--version` still prints the bare version. Over MCP, a person now approves each effect where the client can ask; `TEACHABLE_CONFIRM=model` keeps approval by `confirm: true` alone. Errors arrive as one JSON object instead of JSON inside a string, a command hidden by read-only mode or the beta switch says why instead of being unknown, and `install <client>` sets up a client. The server answers a client in 159 ms where 2.0.1 took 237 (median of 21 runs on one Mac).
 
 Upgrade scripts by inspecting schema/--help. The old create_enrollment path/wrapper, create_user wrapper, course-scoped pricing list and guessed pagination are corrected. list_lectures becomes an explicitly enabled beta lecture-list task; there is no silent v1 fallback. create_webhook/delete_webhook are absent from reviewed current Admin contracts and are retired.
 
@@ -3122,16 +3136,20 @@ All effects now require confirmation. Passwords need private payload_file input;
 | Setting | Meaning |
 | --- | --- |
 | TEACHABLE_API_KEY | Private existing Admin key, one source |
-| TEACHABLE_CREDENTIALS_FILE | Absolute owner-private regular JSON with api_key, at most64KiB |
+| TEACHABLE_CREDENTIALS_FILE | Absolute owner-private regular JSON with api_key, at most 64 KiB |
 | TEACHABLE_ACCOUNTS | Private isolated named-profile array |
 | TEACHABLE_DEFAULT_ACCOUNT | Exact default label |
-| TEACHABLE_API_VERSION | Single-profile version1 default, or explicit2 |
+| TEACHABLE_API_VERSION | Single-profile version 1 by default, or an explicit 2 |
 | TEACHABLE_ENABLE_V2 | 1/true exposes beta tasks; provider access still required |
+| TEACHABLE_TOOLSETS | `beta` or `all` turns on the beta tasks, the same as TEACHABLE_ENABLE_V2 |
 | TEACHABLE_READ_ONLY | 1/true hides and directly refuses effects |
 | TEACHABLE_ALLOW_DESTRUCTIVE | 0/false refuses even confirmed effects |
-| TEACHABLE_AUDIT_LOG | Optional best-effort static guard decision log |
-| TEACHABLE_REQUEST_TIMEOUT_MS | 30000 default; local range100–300000 |
-| TEACHABLE_MIN_REQUEST_INTERVAL_MS | 1000 default; local range0–10000 |
+| TEACHABLE_CONFIRM | `human` by default: a person approves effects over MCP where the client can ask. `model` accepts `confirm: true` alone |
+| TEACHABLE_AUDIT_LOG | Optional best-effort log of guard decisions and who approved each call |
+| TEACHABLE_REQUEST_TIMEOUT_MS | 30000 by default; 100 to 300000 |
+| TEACHABLE_MIN_REQUEST_INTERVAL_MS | 1000 by default; 0 to 10000 |
+| TEACHABLE_TOOL_TIMEOUT_MS | Optional deadline for any one tool call |
+| TEACHABLE_SURFACE | `full` by default; `search` serves three tools that find, describe and run the others |
 
 No arbitrary base-URL setting is supported. Named profiles ignore single-profile credential/version globals. To update, install @latest, inspect the changelog and reconnect. Check that package, desktop manifest and release tag versions match.
 
@@ -3143,14 +3161,14 @@ School keys may authorize changes that affect access, publishing and revenue. Lo
 
 Requests/body files are capped locally at 1 MiB and responses/exports/private receipts at 5 MiB. Local pacing and timeout are process controls rather than global provider quotas. Ambiguous failures are not retried automatically. A native receipt is not independent delivery, publication, settlement or enrollment-access proof.
 
-Production SDK/Ajv dependencies are separate from the build-only desktop packer. The reviewed packer currently depends on node-forge1.4.0 with an unpatched signature-verification advisory; it is excluded from npm runtime and bundled production dependencies. Packaging here does not sign or verify third-party bundles. See [security advisory](https://github.com/advisories/GHSA-86w9-cpqp-85rv). Do not claim a clean full development dependency audit.
+Production dependencies (Slipway, the MCP SDK, Zod, Ajv) are separate from the build-only desktop packer. The reviewed packer currently depends on node-forge 1.4.0 with an unpatched signature-verification advisory; it is excluded from npm runtime and bundled production dependencies. Packaging here does not sign or verify third-party bundles. See [security advisory](https://github.com/advisories/GHSA-86w9-cpqp-85rv). Do not claim a clean full development dependency audit.
 
 ## 17. Troubleshooting
 
 | Symptom | Check |
 | --- | --- |
 | Missing config | Select exactly one private key source in the launching runtime |
-| API401/403 | Check revocation, key permissions, school eligibility and selected version |
+| API 401/403 | Check revocation, key permissions, school eligibility and selected version |
 | Beta hidden | Enable beta explicitly and obtain provider request access |
 | Version mismatch | Choose an exact matching profile; no fallback is attempted |
 | 429 | Respect provider quotas; inspect effects before deliberate retry |
@@ -3160,6 +3178,9 @@ Production SDK/Ajv dependencies are separate from the build-only desktop packer.
 | Invalid pagination | Inspect native filters/counters; no completeness claim is made |
 | Malformed receipt/timeout | Inspect native state before repeating an effect |
 | GUI cannot find npx | Check Node/PATH or use absolute executable and installed entry point |
+| Claude Code asks before every change | Expected: each effect needs a person's approval |
+| `claude -p` will not run a change | Headless Claude Code refuses tools that need a person; give that agent `TEACHABLE_CONFIRM=model` |
+| No approval form appears | The client cannot show forms, so the model's `confirm: true` counts, and only for an action the user asked for |
 
 Report sanitized reproductions through [issues](https://github.com/thenavidm/teachable-mcp-cli/issues). Use private security reporting for sensitive cases. Never attach keys, user-password files, signed receipts or school exports.
 
@@ -3168,7 +3189,7 @@ Report sanitized reproductions through [issues](https://github.com/thenavidm/tea
 <details>
 <summary><b>What is the Teachable MCP server?</b></summary>
 
-A local stdio program for reviewed Teachable Admin API tasks. Stable v 1 exposes 26 tasks:21 native operations and 5 local helpers. Explicit beta opt-in exposes 123 total tasks, adding 97 v 2 Admin operations. The CLI calls the same handlers.
+A local stdio program for reviewed Teachable Admin API tasks. Stable v1 exposes 26 tasks: 21 native operations and 5 local helpers. Explicit beta opt-in exposes 123 tasks in all, adding 97 v2 Admin operations. The CLI calls the same handlers.
 
 </details>
 
@@ -3182,7 +3203,7 @@ The same discovered tools as terminal commands, with schema-derived help, JSON o
 <details>
 <summary><b>Does Teachable have an official MCP?</b></summary>
 
-Yes. Its hosted MCP can search documentation and execute authenticated API operations. The credential-free discovery review found seven v 1 and five v 2 meta-tools, including generic execute-request. Those counts do not describe account-action coverage. See the official MCP guide.
+Yes. Its hosted MCP can search documentation and execute authenticated API operations. The credential-free discovery review found seven v1 and five v2 meta-tools, including generic execute-request. Those counts do not describe account-action coverage. See the official MCP guide.
 
 </details>
 
@@ -3196,7 +3217,7 @@ Use the dedicated shared CLI, exact private school/version selection, local orde
 <details>
 <summary><b>Which API version should I choose?</b></summary>
 
-Stable v 1 is the default. Beta v 2 requires provider request-access approval, appropriate scoped credentials, TEACHABLE_ENABLE_V 2=1 and an explicit version 2 profile. v 2_ commands never silently fall back to v 1, or vice versa.
+Stable v1 is the default. Beta v2 requires provider request-access approval, appropriate scoped credentials, TEACHABLE_ENABLE_V2=1 (or TEACHABLE_TOOLSETS=beta) and an explicit version 2 profile. v2_ commands never silently fall back to v1, or vice versa.
 
 </details>
 
@@ -3224,7 +3245,7 @@ Local stdio clients including Codex, Claude Code, Claude Desktop, Cursor, VS Cod
 <details>
 <summary><b>Can I use the desktop extension?</b></summary>
 
-Download teachable-2.0.0.mcpb from GitHub Releases and use a supported Claude Desktop Extensions screen. Choose one private key source. Stable version 1 is the default; enable beta and version 2 only after obtaining access. Bundled production dependencies do not include a Node runtime.
+Download teachable-3.0.0.mcpb from GitHub Releases and use a supported Claude Desktop Extensions screen. Choose one private key source. Stable version 1 is the default; enable beta and version 2 only after obtaining access. Bundled production dependencies do not include a Node runtime.
 
 </details>
 
@@ -3238,14 +3259,14 @@ TEACHABLE_ACCOUNTS holds unique named profiles with a pinned api_version and one
 <details>
 <summary><b>What does read-only do?</b></summary>
 
-TEACHABLE_READ_ONLY=1 hides and directly refuses all effects:19 reads in stable discovery, or 64 reads when beta is enabled. It is a local policy, not a reduction of the provider key permissions, and does not control other clients.
+TEACHABLE_READ_ONLY=1 hides and directly refuses all effects: 19 reads in stable discovery, or 64 reads when beta is enabled. It is a local policy, not a reduction of the provider key permissions, and does not control other clients.
 
 </details>
 
 <details>
 <summary><b>What requires confirmation?</b></summary>
 
-All provider mutations and private output operations require --confirm in CLI or confirm:true in MCP. Stable mode has 7 effects; beta-enabled mode has 59. This includes enrollment/user changes, batch execution, private export and upload-credential requests. --yes and --agent never approve an effect.
+All provider mutations and private output operations need approval: --confirm in CLI, and over MCP a person's approval where the client can ask, or confirm: true where it cannot. Stable mode has 7 effects; beta-enabled mode has 59. This includes enrollment/user changes, batch execution, private export and upload-credential requests. --yes and --agent never approve an effect.
 
 </details>
 
@@ -3287,21 +3308,21 @@ The reviewed beta upload operation creates signed upload credentials in a new pr
 <details>
 <summary><b>Can it create or delete webhooks?</b></summary>
 
-Those old handlers used routes absent from current reviewed Admin contracts, so they are retired. Stable v 1 supports listing webhooks and their events. Configure webhook creation/removal through supported provider administration; do not guess API endpoints.
+Those old handlers used routes absent from current reviewed Admin contracts, so they are retired. Stable v1 supports listing webhooks and their events. Configure webhook creation/removal through supported provider administration; do not guess API endpoints.
 
 </details>
 
 <details>
 <summary><b>Does CLI save tokens and what does it cost?</b></summary>
 
-The software is free under the preserved AGPL-3.0 license. Provider fees and plans still apply. No completed matched Codex task/token benchmark has been measured for this integration. Schema counts and character estimates are not savings; help, outputs and retries also use context.
+The software is free under the preserved AGPL-3.0 license. Provider fees and plans still apply. Measured against 2.0.1, the same Codex task costs about the same over MCP and 11% fewer input tokens over the CLI, and Claude Code loads the tools for 28 fewer tokens; [section 5](#5-which-surface-and-what-each-costs) has every number and the method. Schema counts and character estimates are not savings; help, outputs and retries also use context.
 
 </details>
 
 <details>
-<summary><b>What changed in version2.0.0?</b></summary>
+<summary><b>What changed in version 3.0.0?</b></summary>
 
-The old private 14-handler MCP gains shared CLI/MCP surfaces, current native validation, private profiles, mandatory effect approval, reviewed batches, exports and a desktop bundle. Eleven supported legacy names remain with corrected arguments. list_lectures has an explicit beta replacement; unsupported webhook creation/deletion are retired. Private legacy Git history is excluded.
+3.0.0 moves both surfaces onto Slipway: over MCP a person approves effects where the client can ask, errors are one JSON object, hidden commands say why, and the server answers sooner. Tool names, arguments and exit codes are unchanged. In 2.0.0, the old private 14-handler MCP gained shared CLI/MCP surfaces, current native validation, private profiles, mandatory effect approval, reviewed batches, exports and a desktop bundle. Eleven supported legacy names remain with corrected arguments. list_lectures has an explicit beta replacement; unsupported webhook creation/deletion are retired. Private legacy Git history is excluded.
 
 </details>
 
@@ -3325,7 +3346,14 @@ Navid Moazzez is a leading AI business strategist, and the host of the AI Creato
 
 ## Dependencies
 
-MCP SDK1.32.0, Ajv and ajv-formats power the shared runtime. TypeScript, Vitest and the desktop packer are build/test tools. Production dependency licenses ship with the desktop bundle. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [SECURITY.md](SECURITY.md).
+| Dependency | What it does | License |
+| --- | --- | --- |
+| [Slipway](https://github.com/thenavidm/slipway) | One tool list as the MCP server and the CLI | Apache-2.0 |
+| [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) | The MCP protocol, through Slipway | Apache-2.0 |
+| [Zod](https://github.com/colinhacks/zod) | Slipway's own schemas | MIT |
+| [Ajv](https://github.com/ajv-validator/ajv) and [ajv-formats](https://github.com/ajv-validator/ajv-formats) | Validates arguments and native bodies | MIT |
+
+TypeScript, Vitest, the MCP SDK client used by the discovery check, and the desktop packer are build and test tools. Production dependency licenses ship with the desktop bundle. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [SECURITY.md](SECURITY.md).
 
 ## License
 

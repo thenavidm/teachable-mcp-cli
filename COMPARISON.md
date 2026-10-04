@@ -1,4 +1,4 @@
-# Teachable alternatives, checked2026-10-04
+# Teachable alternatives, checked 2026-10-04
 
 Teachable's [official remote MCP](https://docs.teachable.com/v2.0/docs/mcp) already supports documentation search and authenticated account requests. Credential-free discovery found seven v1/five v2 meta-tools, including generic execute-request. These are interface counts, not native API coverage. Official Admin apiKey and separately obtained end-user OAuth bearer are distinct; the remote server does not run or refresh the end-user OAuth flow.
 
@@ -8,7 +8,7 @@ Teachable's [official remote MCP](https://docs.teachable.com/v2.0/docs/mcp) alre
 | End-user OAuth | Not implemented | Official MCP accepts a separately obtained bearer |
 | Terminal | Dedicated schemas/help over shared handlers | Generic MCP terminal clients also exist |
 | School selection | Exact isolated profile label and API version | Credential/client setup remains the user's responsibility |
-| Approval | Per-call confirmation, direct read-only refusal | Provider permissions and client approvals remain separate |
+| Approval | A person approves each effect where the client can ask; direct read-only refusal | Provider permissions and client approvals remain separate |
 | Repeated effects | Exact local batch review, stop-on-failure receipts | No transaction/state-lock claim |
 | Export | Bounded private native-page export and offset resume | No atomic backup or binary download claim |
 | Beta | Hidden default, explicitly pinned version, no fallback | Provider request-access and new scoped key may be required |

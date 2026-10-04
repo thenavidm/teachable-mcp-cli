@@ -2,7 +2,9 @@ export type Account={name:string;apiKey:string;credentialsFile:string;apiVersion
 export type Config={accounts:Account[];defaultAccount:string;enableV2:boolean;readOnly:boolean;allowDestructive:boolean;auditPath:string;timeoutMs:number;minIntervalMs:number};
 function integer(v:string|undefined,fallback:number,min:number,max:number){const n=v?Number(v):fallback;if(!Number.isInteger(n)||n<min||n>max)throw Error('Invalid timeout or request pacing setting.');return n;}
 export function loadConfig(env:NodeJS.ProcessEnv=process.env):Config{
- let entries:Record<string,unknown>[]=[];const enableV2=/^(1|true)$/i.test(env.TEACHABLE_ENABLE_V2??'');
+ // TEACHABLE_TOOLSETS=beta or all lists the beta tools, so it opts in exactly as TEACHABLE_ENABLE_V2 does: listed tools also run.
+ const toolsets=(env.TEACHABLE_TOOLSETS??'').toLowerCase().split(',').map(s=>s.trim());
+ let entries:Record<string,unknown>[]=[];const enableV2=/^(1|true)$/i.test(env.TEACHABLE_ENABLE_V2??'')||toolsets.includes('beta')||toolsets.includes('all');
  if(env.TEACHABLE_ACCOUNTS){try{entries=JSON.parse(env.TEACHABLE_ACCOUNTS);if(!Array.isArray(entries))throw Error();}catch{throw Error('TEACHABLE_ACCOUNTS must be a private JSON array of named profiles.');}}
  else if(env.TEACHABLE_API_KEY||env.TEACHABLE_CREDENTIALS_FILE)entries=[{name:'default',api_key:env.TEACHABLE_API_KEY,credentials_file:env.TEACHABLE_CREDENTIALS_FILE,api_version:env.TEACHABLE_API_VERSION??'1'}];
  const accounts=entries.map(x=>{

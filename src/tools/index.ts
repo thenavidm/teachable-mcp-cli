@@ -9,15 +9,18 @@ import {createHash} from 'node:crypto';
 import {TeachableClient,type Json,type QueryParam} from '../api/client.js';
 import {TeachableError,UsageError} from '../api/errors.js';
 import {selectAccount,type Config} from '../config.js';
-import type {Risk} from '../safety.js';
+import type {Risk} from '@thenavidm/slipway';
 type Param={name:string;key:string;location:string;required:boolean;schema:Json;explode:boolean};
 export type Operation={name:string;operationId:string;title:string;description:string;method:string;path:string;group:string;risk:Risk;apiVersion:'1'|'2';listField:string;sizeKey:string;pageCountKey:string;params:Param[];bodySchema:Json|null;bodyRequired:boolean;privateOutput:boolean;pagination:boolean;scopes:unknown;source:string};
 export type ToolSpec={name:string;title:string;description:string;group:string;inputSchema:Json;risk:Risk;handler:(args:Json,client:TeachableClient)=>Promise<unknown>};
 const operations=operationData as unknown as Operation[];
 const ajv=new Ajv({allErrors:true,strict:false,formats:{int32:true,int64:true,double:true,float:true}});
 (addFormats as unknown as (a:Ajv)=>void)(ajv);
-const privateResponseValidator=ajv.compile((operationData.find(o=>o.privateOutput)!.responseSchemas as Json)['201']);
-const bodyValidators=new Map(operations.filter(o=>o.bodySchema).map(o=>[o.name,ajv.compile(o.bodySchema!)]));
+// Each schema compiles on first use: compiling all of them at load held back the server's first answer. compileAll() runs them in tests.
+const compiled=new Map<object,ValidateFunction>();
+function validatorFor(schema:object){let v=compiled.get(schema);if(!v){v=ajv.compile(schema);compiled.set(schema,v);}return v;}
+const privateResponseSchema=(operationData.find(o=>o.privateOutput)!.responseSchemas as Json)['201'] as object;
+const bodySchemas=new Map(operations.filter(o=>o.bodySchema).map(o=>[o.name,o.bodySchema! as object]));
 function check(v:ValidateFunction,value:unknown){if(!v(value))throw new UsageError(ajv.errorsText(v.errors,{separator:'; '}));}
 const account={type:'string',description:'Exact private school profile label; not a provider identity or authorization proof.'};
 const confirm={type:'boolean',description:'Explicit approval for this exact provider effect or local private-file operation.'};
@@ -26,7 +29,7 @@ function fieldsFor(op:Operation){
   const properties:Json=Object.fromEntries(op.params.map(p=>[p.key,p.schema]));
   for(const [key,value] of Object.entries(bodyProperties(op)))if(key!=='password'&&!(key in properties))properties[key]=value;
   Object.assign(properties,{account});if(op.risk!=='read')properties.confirm=confirm;
-  if(op.bodySchema){properties.payload={...op.bodySchema,description:'Complete current native JSON body; cannot mix with native body flags or payload_file.'};properties.payload_file={type:'string',minLength:1,description:'Absolute regular non-symlink native JSON body file, at most1MiB. Cannot mix with payload or body flags.'};}
+  if(op.bodySchema){properties.payload={...op.bodySchema,description:'Complete current native JSON body; cannot mix with native body flags or payload_file.'};properties.payload_file={type:'string',minLength:1,description:'Absolute regular non-symlink native JSON body file, at most 1 MiB. Cannot mix with payload or body flags.'};}
   if(op.privateOutput)properties.output_file={type:'string',minLength:1,description:'Absolute NEW owner-private receipt file; exclusive0600 creation, no overwrite. Upload/public-token URLs never enter ordinary output.'};
   return{type:'object',properties,required:[...op.params.filter(p=>p.required).map(p=>p.key),...(op.privateOutput?['output_file']:[])],additionalProperties:false};
 }
@@ -57,7 +60,7 @@ async function prepare(op:Operation,args:Json,c:TeachableClient){
       if(!args.payload_file||!['/v1/users','/v1/users/{user_id}','/v2/users','/v2/users/{user_id}'].includes(op.path))throw new UsageError('User passwords require owner-private payload_file; never inline flags or payload.');
       if(body.password!==null&&(typeof body.password!=='string'||body.password.length<6))throw new UsageError('User password must meet the native six-character minimum.');
     }
-    check(bodyValidators.get(op.name)!,body);
+    check(validatorFor(bodySchemas.get(op.name)!),body);
     const nonPassword={...body};delete nonPassword.password;
     if(credentialFields(nonPassword))throw new UsageError('Credentials belong to private profile configuration, never native bodies.');
     if(op.apiVersion==='2'&&op.path.startsWith('/v2/users')&&op.method==='POST'){
@@ -93,7 +96,7 @@ async function prepare(op:Operation,args:Json,c:TeachableClient){
 async function savePrivate(path:string,value:unknown){
   if(!isAbsolute(path))throw new UsageError('output_file must be absolute.');let f;
   try{f=await open(path,'wx',0o600);}catch{throw new UsageError('Cannot exclusively create output_file; never overwrites or follows a target symlink.');}
-  try{const actual=typeof value==='function'?await(value as()=>Promise<unknown>)():value;const bytes=Buffer.from(JSON.stringify(actual)+'\n');if(bytes.length>5*1048576)throw new UsageError('Private output exceeds5MiB local cap.');await f.writeFile(bytes);return{saved:true,output_file:path,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};}
+  try{const actual=typeof value==='function'?await(value as()=>Promise<unknown>)():value;const bytes=Buffer.from(JSON.stringify(actual)+'\n');if(bytes.length>5*1048576)throw new UsageError('Private output exceeds 5 MiB local cap.');await f.writeFile(bytes);return{saved:true,output_file:path,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};}
   catch(e){await f.close();f=undefined;await unlink(path).catch(()=>{});throw e;}finally{await f?.close();}
 }
 async function execute(op:Operation,args:Json,c:TeachableClient){
@@ -103,7 +106,7 @@ async function execute(op:Operation,args:Json,c:TeachableClient){
   const call=await prepare(op,args,c),run=()=>c.request(call.method,call.path,call.query,call.body,args.account);
   if(!op.privateOutput)return c.sanitize(await run());
   return savePrivate(args.output_file,async()=>{
-    const receipt=await run();if(!privateResponseValidator(receipt))throw new TeachableError('Invalid native upload credential receipt; requested outcome is unverified.');const d=(receipt as Json).data;
+    const receipt=await run();if(!validatorFor(privateResponseSchema)(receipt))throw new TeachableError('Invalid native upload credential receipt; requested outcome is unverified.');const d=(receipt as Json).data;
     if(!d||typeof d.upload_url!=='string'||!['POST','PUT'].includes(d.upload_method)||!d.upload_headers||typeof d.upload_headers!=='object'||typeof d.upload_id!=='string')throw new TeachableError('Invalid native upload credentials receipt; requested outcome is unverified.');
     return{receiptVersion:1,operation:op.name,profile:selected.name,apiVersion:selected.apiVersion,request:call.body,data:d,uploaded:false,attached:false};
   });
@@ -143,7 +146,7 @@ helper('export_resources','Export bounded private metadata','Confirmed reviewed 
       if(!Array.isArray(items)||meta?.page!==page||meta?.per_page!==size||!Number.isInteger(totalPages)||totalPages<0||items.length>size||totalPages>0&&page>totalPages||totalPages===0&&items.length)throw new TeachableError('Invalid native pagination receipt; completeness unproven.');
       if(offset>items.length)throw new UsageError('Resume page changed; start_offset no longer exists.');
       const take=Math.min(items.length-offset,maxItems-data.length);data.push(...items.slice(offset,offset+take));offset+=take;
-      if(Buffer.byteLength(JSON.stringify(data))>5*1048576)throw new TeachableError('Export exceeds5MiB local cap.');
+      if(Buffer.byteLength(JSON.stringify(data))>5*1048576)throw new TeachableError('Export exceeds 5 MiB local cap.');
       if(offset<items.length)break;if(totalPages===0||page>=totalPages){complete=true;break;}
       if(!items.length)throw new TeachableError('Empty native page before total_pages; no completeness guarantee.');page++;offset=0;
       if(op.name==='list_users'&&(page-1)*size>=10000)break;
@@ -151,6 +154,8 @@ helper('export_resources','Export bounded private metadata','Confirmed reviewed 
     receipt={requests,items:data.length,completeWithinRequestedFilters:complete,apiVersion:op.apiVersion,continuation:complete?null:{operation:op.name,arguments:{...args,page,[op.sizeKey]:size},start_offset:offset},nativeSearchAfterNotInferred:op.name==='list_users',atomicSnapshot:false,credentialsAndSignedURLsRedacted:true};return{data:c.sanitize(data),receipt};
   });return{...saved,...receipt};
 });
-const validators=new Map(ALL_TOOLS.map(t=>[t.name,ajv.compile(t.inputSchema)]));
-export function validateArguments(tool:ToolSpec,args:Json){check(validators.get(tool.name)!,args);}
+const inputSchemas=new Map(ALL_TOOLS.map(t=>[t.name,t.inputSchema as object]));
+export function validateArguments(tool:ToolSpec,args:Json){check(validatorFor(inputSchemas.get(tool.name)!),args);}
+/** Compile every input, body and receipt schema now, so one that cannot compile fails a test instead of a person's first call. */
+export function compileAll(){for(const schema of [privateResponseSchema,...bodySchemas.values(),...inputSchemas.values()])validatorFor(schema);return compiled.size;}
 export function visibleTools(config:Config){return ALL_TOOLS.filter(t=>(config.enableV2||!t.name.startsWith('v2_'))&&(!config.readOnly||t.risk==='read'));}

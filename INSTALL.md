@@ -1,6 +1,6 @@
 # Install Teachable MCP Server & CLI
 
-Node22+; one package, two binaries and a desktop bundle.
+Node 22+; one package, two binaries and a desktop bundle.
 
 Use the intended school owner account to open **Settings > API > Create API Key**. Give the key a name and select only the permissions needed. API eligibility and beta access remain provider-controlled. Follow [Teachable authentication](https://docs.teachable.com/v2.0/docs/authentication).
 
@@ -82,7 +82,7 @@ Alternatively install the CLI, make SKILL.md available to Claude, and use shell 
 
 ### Install the .mcpb extension
 
-Download teachable-2.0.0.mcpb from [GitHub Releases](https://github.com/thenavidm/teachable-mcp-cli/releases/latest). In a supported Claude Desktop build, use Settings > Extensions > Advanced settings > Install Extension… . Choose one private Admin API key or credential JSON file; leave the other empty. Stable version1 is default; beta requires enable_v2 plus an explicit version2 profile and provider access. Named profiles require private manual runtime settings. Read-only exposes only the 19 read operations by default (64 with beta enabled). Reconnect after installation or credential rotation. The bundle includes production dependencies; Node 22+ compatibility and actual GUI installation are separate checks.
+Download teachable-3.0.0.mcpb from [GitHub Releases](https://github.com/thenavidm/teachable-mcp-cli/releases/latest). In a supported Claude Desktop build, use Settings > Extensions > Advanced settings > Install Extension… . Choose one private Admin API key or credential JSON file; leave the other empty. Stable version 1 is default; beta requires enable_v2 plus an explicit version 2 profile and provider access. Named profiles require private manual runtime settings. Read-only exposes only the 19 read operations by default (64 with beta enabled). Reconnect after installation or credential rotation. The bundle includes production dependencies; Node 22+ compatibility and actual GUI installation are separate checks.
 
 ### Manual config
 
@@ -253,13 +253,13 @@ Build the included Dockerfile and supply private runtime settings through your s
 
 ## Policy and limits
 
-Every provider or private-output effect requires `confirm:true` in MCP or `--confirm` in CLI. Read-only hides and directly refuses effects, and `TEACHABLE_ALLOW_DESTRUCTIVE=0` refuses them even with approval. Local confirmation does not supply provider authorization, customer permission, marketing consent or financial entitlement.
+Every provider or private-output effect needs approval. In a terminal that is `--confirm`, which `--agent` and `--yes` never add. Over MCP a person approves each one where the client can ask: Claude Code (2.1.246 and later) shows its own prompt for the call, and a client that can show forms asks with an approval form whose one box starts unticked. Each approval is signed, bound to that exact call and works once. A client that can do neither falls back to `confirm: true`, which a model may pass only when the user asked for that exact action. `TEACHABLE_CONFIRM=model` makes `confirm: true` enough everywhere, for a headless agent you trust. Read-only hides and directly refuses effects, and `TEACHABLE_ALLOW_DESTRUCTIVE=0` refuses them even with approval. Local confirmation does not supply provider authorization, customer permission, marketing consent or financial entitlement.
 
 Read the intended records and inspect the operation schema before preparing effects. Course publishing, enrollment access, user deletion, session revocation and pricing changes can affect people immediately. Only carry out the action the user asked for. Teachable determines whether a key, role, scope and school plan allow it.
 
 No operation retries automatically. A timeout or malformed receipt can leave an unknown outcome; inspect native state before deliberately repeating. Local pacing defaults to one second and a 30-second request timeout. Other processes still share provider quotas.
 
-Stable v1 remains under `/v1`; opt-in v2 is request-access beta under `/v2`. Set `TEACHABLE_ENABLE_V2=1` to expose v2_ tasks and configure an explicit `api_version:"2"` profile. Merely enabling discovery does not grant access or change a version 1 profile.
+Stable v1 remains under `/v1`; opt-in v2 is request-access beta under `/v2`. Set `TEACHABLE_ENABLE_V2=1` (or `TEACHABLE_TOOLSETS=beta`) to expose v2_ tasks and configure an explicit `api_version:"2"` profile. Merely enabling discovery does not grant access or change a version 1 profile.
 
 V1 enrollment creation is `POST /v1/enroll` with flat `user_id` and `course_id`; it is not the legacy `/enrollments` wrapper. User creation uses flat `email`, `name`, `password` and `src`, with no guessed role field. Pricing lists use `/v1/pricing_plans`. Course enrollment listing has native enrolled_in_after/enrolled_in_before/sort_direction filters, without invented page/per arguments.
 

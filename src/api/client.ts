@@ -36,7 +36,7 @@ export class TeachableClient {
       if(!stat.isFile()||stat.size>65536||(process.platform!=='win32'&&((stat.mode&0o077)||stat.uid!==process.getuid?.())))throw Error();
       const bytes=await file.readFile();if(bytes.length>65536||bytes.length!==stat.size)throw Error();values=JSON.parse(bytes.toString('utf8'));
       if(!values||typeof values!=='object'||Array.isArray(values)||Object.keys(values).some(k=>k!=='api_key'))throw Error();
-    }catch{throw new TeachableError('Cannot read selected private credential JSON file; use an absolute owner-only regular non-symlink file at most64KiB.',0,'CONFIG');}finally{await file?.close();}}
+    }catch{throw new TeachableError('Cannot read selected private credential JSON file; use an absolute owner-only regular non-symlink file at most 64 KiB.',0,'CONFIG');}finally{await file?.close();}}
     if(typeof values.api_key!=='string'||!values.api_key||/[\r\n]/.test(values.api_key))throw new TeachableError('No valid API key configured for selected profile. Run teachable-cli login.',0,'CONFIG');
     this.rememberSecret(values.api_key);this.authorizations.set(a.name,values.api_key);return values.api_key;
   }
@@ -53,7 +53,7 @@ export class TeachableClient {
   private async bytes(response:Response) {
     const chunks:Uint8Array[]=[];let total=0;const reader=response.body?.getReader();
     if(reader)try{for(;;){const part=await reader.read();if(part.done)break;total+=part.value.byteLength;
-      if(total>MAX){await reader.cancel();throw new TeachableError('Response exceeds5MiB local cap; no automatic retry.');}chunks.push(part.value);}}
+      if(total>MAX){await reader.cancel();throw new TeachableError('Response exceeds 5 MiB local cap; no automatic retry.');}chunks.push(part.value);}}
     finally{reader.releaseLock();}return Buffer.concat(chunks);
   }
   async request(method:string,path:string,query:QueryParam[]=[],body?:unknown,hint?:string):Promise<any> {
@@ -68,7 +68,7 @@ export class TeachableClient {
       if(Array.isArray(v)){if(v.some(x=>typeof x==='object'))throw new UsageError('Nested query collections unsupported.');if(param.explode)for(const x of v)url.searchParams.append(param.name,String(x));else url.searchParams.set(param.name,v.join(','));}
       else if(typeof v==='object')throw new UsageError('Object query field unsupported.');else url.searchParams.set(param.name,String(v));}
     const encoded=body===undefined?undefined:JSON.stringify(body);
-    if(encoded!==undefined){headers['Content-Type']='application/json';if(Buffer.byteLength(encoded)>1048576)throw new UsageError('Request exceeds1MiB local cap.');}
+    if(encoded!==undefined){headers['Content-Type']='application/json';if(Buffer.byteLength(encoded)>1048576)throw new UsageError('Request exceeds 1 MiB local cap.');}
     await this.pace(account.name,op);let response:Response;
     try{response=await this.fetcher(url,{method,redirect:'error',signal:AbortSignal.timeout(this.config.timeoutMs),headers,...(encoded===undefined?{}:{body:encoded})});}
     catch{throw new TeachableError('Request failed or timed out. Outcome may be unknown; no automatic retry. Inspect provider state before deliberately repeating.',0,'NETWORK');}

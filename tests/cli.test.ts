@@ -1,106 +1,94 @@
 /**
- * The CLI bridge (src/cli.ts, copied from dev:mcp-cli assets/cli-bridge.ts).
+ * The CLI, now built by Slipway from the same tools as the MCP server.
  *
- * The bridge reads the real server's tools/list, so the tests that count are
- * the ones over that list: every tool routes, every schema turns into flags,
- * and every required key is a required flag. The rest cover the argv shapes a
- * person types and the exit-code contract.
+ * Parsing, help and output shapes are Slipway's and tested there. These cover
+ * what this repo promises: the beta switch, read-only mode, confirmation that
+ * agent mode never grants, and the setup exit code.
  */
 
 import { describe, expect, it } from "vitest";
-import { EXIT, exitCodeFor, flagsFor, isCliCommand, listTools, parseArgs } from "../src/cli.js";
+import { checkApp, cli } from "@thenavidm/slipway/testing";
+import { TeachableClient } from "../src/api/client.js";
+import { app, createApp } from "../src/app.js";
+import { loadConfig } from "../src/config.js";
 
-const schema = {
-  type: "object",
-  properties: {
-    text: { type: "string", description: "The body." },
-    limit: { type: "integer" },
-    confirm: { type: "boolean" },
-    tags: { type: "array", items: { type: "string" } },
-    filter: { type: "object" },
-    mode: { type: "string", enum: ["fast", "slow"] },
-    maybe: { anyOf: [{ type: "number" }, { type: "null" }] },
-  },
-  required: ["text"],
-};
+const key = { TEACHABLE_API_KEY: "fixture-key-not-a-provider-secret" };
 
-describe("flags from the JSON Schema an MCP app receives", () => {
-  const flags = flagsFor(schema);
-  const by = (key: string) => flags.find((f) => f.key === key);
+/** The app with Teachable answering every request with `status` and `body`, so nothing leaves the test. */
+function answering(status: number, body: unknown = { message: "failure" }) {
+  return createApp({
+    context: (env) => {
+      const config = loadConfig({ ...env, TEACHABLE_MIN_REQUEST_INTERVAL_MS: "0" });
+      const fetcher = async () => new Response(JSON.stringify(body), { status });
+      return { config, client: new TeachableClient(config, fetcher as typeof fetch) };
+    },
+  });
+}
 
-  it("kebab-cases each key and carries its description", () => {
-    expect(by("text")).toMatchObject({ flag: "--text", kind: "string", required: true, help: "The body." });
+describe("Teachable CLI on Slipway", () => {
+  it("lists the 26 stable commands, and all 123 with the beta switch", async () => {
+    const stable = JSON.parse((await cli(app, ["agent-context", "--brief"], { env: {} })).stdout);
+    const beta = JSON.parse((await cli(app, ["agent-context", "--brief"], { env: { TEACHABLE_ENABLE_V2: "1" } })).stdout);
+    expect(stable.commands).toHaveLength(26);
+    expect(beta.commands).toHaveLength(123);
+    expect(beta.commands.filter((c: { requires_confirm: boolean }) => c.requires_confirm)).toHaveLength(59);
   });
 
-  it("reads the kind of every property", () => {
-    expect(by("limit")?.kind).toBe("integer");
-    expect(by("confirm")?.kind).toBe("boolean");
-    expect(by("tags")).toMatchObject({ kind: "string", repeatable: true });
-    expect(by("filter")?.kind).toBe("json");
-    expect(by("mode")).toMatchObject({ kind: "enum", choices: ["fast", "slow"] });
-    expect(by("maybe")?.kind).toBe("number");
-  });
-});
-
-describe("parseArgs", () => {
-  const flags = flagsFor(schema);
-
-  it("accepts --flag value, --flag=value and the underscore spelling", () => {
-    expect(parseArgs(["--text", "hi"], flags)).toEqual({ text: "hi" });
-    expect(parseArgs(["--text=hi"], flags)).toEqual({ text: "hi" });
-    expect(parseArgs(["--text", "hi", "--mode", "fast"], flags)).toEqual({ text: "hi", mode: "fast" });
-  });
-
-  it("treats a boolean as a switch and collects a repeatable flag", () => {
-    expect(parseArgs(["--text", "hi", "--confirm", "--tags", "a", "--tags", "b"], flags)).toEqual({ text: "hi", confirm: true, tags: ["a", "b"] });
-  });
-
-  it("fills the first required flag from a bare argument", () => {
-    expect(parseArgs(["hello"], flags)).toEqual({ text: "hello" });
-  });
-
-  it("refuses what it cannot use", () => {
-    expect(() => parseArgs(["--nope", "x"], flags)).toThrow(/Unknown option/);
-    expect(() => parseArgs(["--text", "hi", "--limit", "1.5"], flags)).toThrow(/whole number/);
-    expect(() => parseArgs(["--text", "hi", "--mode", "medium"], flags)).toThrow(/one of/);
-    expect(() => parseArgs(["--text", "hi", "--filter", "{oops"], flags)).toThrow(/JSON/);
-    expect(() => parseArgs([], flags)).toThrow(/Missing --text/);
-  });
-});
-
-describe("exit codes follow the house contract", () => {
-  it("maps Teachable configuration and batch failures without hiding native errors", () => {
-    expect(exitCodeFor('{"error":"Cannot read selected private credential JSON file","code":"CONFIG"}')).toBe(EXIT.config);
-    expect(exitCodeFor('{"error":"Batch stopped: Teachable API 500","status":500,"code":"API_ERROR"}')).toBe(EXIT.api);
-    expect(exitCodeFor('{"error":"Batch stopped: Teachable API 429","status":429,"code":"RATE_LIMIT"}')).toBe(EXIT.rateLimited);
-  });
-  it("maps the generic words", () => {
-    expect(exitCodeFor("MCP error -32602: Input validation error: Invalid arguments")).toBe(EXIT.usage);
-    expect(exitCodeFor("Not deleting. Call again with confirm: true once you are sure.")).toBe(EXIT.usage);
-    expect(exitCodeFor("Too many requests, slow down (429)")).toBe(EXIT.rateLimited);
-    expect(exitCodeFor("Nothing is configured. Run `login` first.")).toBe(EXIT.config);
-    expect(exitCodeFor("Request had invalid authentication credentials (401)")).toBe(EXIT.auth);
-    expect(exitCodeFor("That resource was not found (404)")).toBe(EXIT.notFound);
-    expect(exitCodeFor("Upstream answered 502")).toBe(EXIT.api);
-  });
-});
-
-describe("parity with the real server", () => {
-  it("routes every tool in both spellings, and builds flags for every schema", async () => {
-    const tools = await listTools();
-    expect(tools.length).toBeGreaterThan(0);
-    const names = tools.map((t) => t.name);
-    for (const tool of tools) {
-      expect(isCliCommand([tool.name], names)).toBe(true);
-      expect(isCliCommand([tool.name.replace(/_/g, "-")], names)).toBe(true);
-      const flags = flagsFor(tool.inputSchema);
-      expect(flags).toHaveLength(Object.keys(tool.inputSchema.properties ?? {}).length);
-      for (const key of tool.inputSchema.required ?? []) expect(flags.find((f) => f.key === key)?.required).toBe(true);
+  it("runs the beta tools it lists when TEACHABLE_TOOLSETS turns them on", async () => {
+    const page = { data: [{ id: 7 }], meta: { page: 1, per_page: 20, total_pages: 1 } };
+    for (const toolsets of ["beta", "all"]) {
+      const env = { ...key, TEACHABLE_TOOLSETS: toolsets, TEACHABLE_API_VERSION: "2" };
+      expect(JSON.parse((await cli(app, ["agent-context", "--brief"], { env })).stdout).commands).toHaveLength(123);
+      const run = await cli(answering(200, page), ["v2-list-courses", "--agent"], { env });
+      expect(run.stderr).toBe("");
+      expect(run.code).toBe(0);
     }
   });
 
-  it("leaves the server's own flags alone", () => {
-    expect(isCliCommand(["--http"], ["x"])).toBe(false);
-    expect(isCliCommand([], ["x"])).toBe(false);
+  it("refuses an enrollment without --confirm, also in agent mode, before any network", async () => {
+    for (const extra of [[], ["--agent"], ["--yes"]]) {
+      const run = await cli(app, ["create-enrollment", "--course-id", "7", "--user-id", "9", ...extra], { env: key });
+      expect(run.code).toBe(2);
+      expect(JSON.parse(run.stderr).code).toBe("refused");
+    }
+  });
+
+  it("hides writes in read-only mode", async () => {
+    const run = await cli(app, ["create-enrollment", "--course-id", "7", "--user-id", "9", "--confirm"], { env: { ...key, TEACHABLE_READ_ONLY: "1" } });
+    expect(run.code).toBe(2);
+    expect(run.stderr).toContain("TEACHABLE_READ_ONLY");
+  });
+
+  it("reports a missing argument by its flag", async () => {
+    const run = await cli(app, ["get-course"], { env: key });
+    expect(run.code).toBe(2);
+    expect(JSON.parse(run.stderr).error).toContain("--course-id");
+  });
+
+  it("exits 10 when nothing is configured, on a call and from doctor", async () => {
+    expect((await cli(app, ["list-courses"], { env: {} })).code).toBe(10);
+    expect((await cli(app, ["doctor", "--json"], { env: {} })).code).toBe(10);
+  });
+
+  it("keeps the exit codes scripts branch on: an unreadable key file 10, a batch stopped by 500 is 5, by 429 is 7", async () => {
+    const unreadable = await cli(app, ["list-courses"], { env: { TEACHABLE_CREDENTIALS_FILE: "/nonexistent/teachable.json" } });
+    expect(unreadable.code).toBe(10);
+    expect(JSON.parse(unreadable.stderr).code).toBe("not_configured");
+
+    const tasks = JSON.stringify([{ tool: "create_enrollment", arguments: { course_id: 7, user_id: 9 } }]);
+    for (const [status, code] of [[500, 5], [429, 7]]) {
+      const stub = answering(status);
+      const review = JSON.parse((await cli(stub, ["preview-school-batch", "--tasks", tasks, "--agent"], { env: key })).stdout);
+      const run = await cli(stub, ["submit-school-batch", "--tasks", tasks, "--review-sha256", review.reviewSha256, "--confirm", "--agent"], { env: key });
+      expect(run.code).toBe(code);
+      expect(JSON.parse(JSON.parse(run.stderr).error).failedIndex).toBe(0);
+    }
+  });
+
+  it("passes slipway check in both policy modes", async () => {
+    for (const env of [{}, { TEACHABLE_ENABLE_V2: "1" }]) {
+      const report = await checkApp(app, { env });
+      expect(report.findings.filter((finding) => finding.level === "error")).toEqual([]);
+    }
   });
 });
