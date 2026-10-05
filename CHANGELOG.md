@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.1, 2026-10-05
+
+- **A refusal and the approval form say what the call can do again.** 3.0.0 said every confirmed call "is public or cannot be undone", Slipway's words for a call it knows nothing more about. Both say again what 2.0.1 said, that the call may change school users, enrollments, products, pricing or sessions, or save private files, and a test holds them to it.
+- **Built on Slipway 0.1.17**, which a fresh install of 3.0.0 already used. Since the Slipway 3.0.0 was measured on, 0.1.4, `which` prints a title once where a description opens with it and reads an argument by its own words, and the general help counts the tuning settings instead of naming them, with `agent-context` describing each. [Slipway's changelog](https://github.com/thenavidm/slipway/blob/main/CHANGELOG.md) lists the rest.
+
 ## 3.0.0, 2026-10-04
 
 Built on [Slipway](https://github.com/thenavidm/slipway) 0.1.4. Tool names, arguments, results and exit codes are unchanged, and every difference below was measured against 2.0.1 before release.

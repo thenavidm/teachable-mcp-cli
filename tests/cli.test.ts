@@ -50,6 +50,8 @@ describe("Teachable CLI on Slipway", () => {
       const run = await cli(app, ["create-enrollment", "--course-id", "7", "--user-id", "9", ...extra], { env: key });
       expect(run.code).toBe(2);
       expect(JSON.parse(run.stderr).code).toBe("refused");
+      // 2.x's words for what the call can do, not a generic warning.
+      expect(JSON.parse(run.stderr).error).toContain("may change school users,");
     }
   });
 

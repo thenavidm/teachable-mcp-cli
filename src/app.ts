@@ -35,6 +35,9 @@ export const INSTRUCTIONS = "Teachable Admin v1 is stable; v2 is explicit reques
 /** Helpers that never leave this machine. */
 const LOCAL = new Set(["list_accounts", "get_operation_schema", "preview_school_batch"]);
 
+/** What 2.x's refusal said a confirmed call can do; the refusal and the approval form say it again. */
+const WHY = "may change school users, enrollments, products, pricing or sessions, or save private files";
+
 const CONFIG_WORDS = /no credentials configured|no valid api key|unknown profile|private profile|profile names|every profile|choose one credential|beta v2 profile/i;
 
 /** Teachable's errors carry their status and their own redaction; both are kept on the way out. */
@@ -62,6 +65,7 @@ function toTool(spec: ToolSpec): Tool<Context> {
     risk: spec.risk,
     // Every provider change or private output needs confirmation, including the local exports.
     requireConfirm: spec.risk !== "read",
+    ...(spec.risk !== "read" ? { consequence: WHY } : {}),
     openWorld: !LOCAL.has(spec.name),
     tags: spec.name.startsWith("v2_") ? ["beta"] : [],
     summary: () => spec.title,

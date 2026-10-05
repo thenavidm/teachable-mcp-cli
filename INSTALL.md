@@ -82,7 +82,7 @@ Alternatively install the CLI, make SKILL.md available to Claude, and use shell 
 
 ### Install the .mcpb extension
 
-Download teachable-3.0.0.mcpb from [GitHub Releases](https://github.com/thenavidm/teachable-mcp-cli/releases/latest). In a supported Claude Desktop build, use Settings > Extensions > Advanced settings > Install Extension… . Choose one private Admin API key or credential JSON file; leave the other empty. Stable version 1 is default; beta requires enable_v2 plus an explicit version 2 profile and provider access. Named profiles require private manual runtime settings. Read-only exposes only the 19 read operations by default (64 with beta enabled). Reconnect after installation or credential rotation. The bundle includes production dependencies; Node 22+ compatibility and actual GUI installation are separate checks.
+Download teachable-3.0.1.mcpb from [GitHub Releases](https://github.com/thenavidm/teachable-mcp-cli/releases/latest). In a supported Claude Desktop build, use Settings > Extensions > Advanced settings > Install Extension… . Choose one private Admin API key or credential JSON file; leave the other empty. Stable version 1 is default; beta requires enable_v2 plus an explicit version 2 profile and provider access. Named profiles require private manual runtime settings. Read-only exposes only the 19 read operations by default (64 with beta enabled). Reconnect after installation or credential rotation. The bundle includes production dependencies; Node 22+ compatibility and actual GUI installation are separate checks.
 
 ### Manual config
 

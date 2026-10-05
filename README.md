@@ -3067,7 +3067,7 @@ Output uses a NEW absolute path, exclusive creation and POSIX 0600 permissions. 
 
 ## 11. How it works
 
-[Slipway](https://github.com/thenavidm/slipway) 0.1.4 turns one list of tools into the stdio MCP server and the CLI, and both send every call through the same path, so validation, the guard, approval and redaction cannot differ. Tool schemas derive from reviewed native parameters/body variants; Ajv validates arguments and bodies before fetching, compiling each schema on its first use. Method/path/version allowlists prevent arbitrary-host key forwarding and silent API fallback. Path-level and operation-level parameters both matter.
+[Slipway](https://github.com/thenavidm/slipway) 0.1.17 turns one list of tools into the stdio MCP server and the CLI, and both send every call through the same path, so validation, the guard, approval and redaction cannot differ. Tool schemas derive from reviewed native parameters/body variants; Ajv validates arguments and bodies before fetching, compiling each schema on its first use. Method/path/version allowlists prevent arbitrary-host key forwarding and silent API fallback. Path-level and operation-level parameters both matter.
 
 Five local helpers provide profile discovery, contract inspection, review/submit batches and bounded metadata exports. No community runtime or private legacy Git history is copied. The provenance file pins the transformed schema and the two original source snapshot hashes.
 
@@ -3114,9 +3114,9 @@ The pinned [ahmedrowaihi/teachable-mcp-server](https://github.com/ahmedrowaihi/t
 
 | Component | Version or evidence |
 | --- | --- |
-| Package and desktop | 3.0.0 |
+| Package and desktop | 3.0.1 |
 | Node runtime | >=22 |
-| Framework | Slipway 0.1.4 |
+| Framework | Slipway 0.1.17 |
 | Native contracts | Stable v1 and request-access beta v2, checked 2026-10-04 |
 | Native operations | 21 v1 / 97 v2 |
 | Shared helpers | 5 |
